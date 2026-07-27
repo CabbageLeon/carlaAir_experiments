@@ -11,7 +11,8 @@
                         {
                             "ImageType": 0,
                             "Width": 1280,
-                            "Height": 960
+                            "Height": 960,
+                            "FOV_Degrees": 108
                         }
                     ],
                     "X": 0.5,

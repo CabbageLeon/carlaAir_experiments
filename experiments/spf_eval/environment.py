@@ -34,16 +34,17 @@ class VehicleState:
 class CarlaAirEnvironment:
     """Owns the evaluation truck and clears pre-existing traffic before each episode."""
 
-    def __init__(self, carla_port: int = 2000, airsim_port: int = 41451, profile: TruckProfile | None = None):
+    def __init__(self, carla_port: int = 2000, airsim_port: int = 41451,
+                 profile: TruckProfile | None = None,
+                 truck_speed: float = 4.0,
+                 horizontal_gain: float = 3.0,
+                 vertical_gain: float = 0.8):
         self.client = carla.Client("127.0.0.1", carla_port)
         self.client.set_timeout(20.0)
         self.world = self.client.get_world()
         self.traffic_manager = self.client.get_trafficmanager(8000)
         self.air = airsim.MultirotorClient(ip="127.0.0.1", port=airsim_port, timeout_value=20)
         self.air.confirmConnection()
-        # AirSim's msgpack RPC session is not thread-safe. Image requests are issued
-        # from a worker so the shared world can advance one render tick; keep them on
-        # their own session and leave flight/state operations on ``self.air``.
         self.camera_air = airsim.MultirotorClient(
             ip="127.0.0.1", port=airsim_port, timeout_value=20
         )
@@ -55,6 +56,10 @@ class CarlaAirEnvironment:
         self._last_target_speed = 4.0
         self._fixed_delta_seconds = 0.05
         self._next_tick_wall: float | None = None
+        # Tunable from config
+        self.truck_speed = truck_speed
+        self.horizontal_gain = horizontal_gain
+        self.vertical_gain = vertical_gain
 
     def reset(self, seed: int, spawn_index: int = 0) -> None:
         self.close_episode()
@@ -109,7 +114,7 @@ class CarlaAirEnvironment:
         self.truck.apply_control(carla.VehicleControl(brake=1.0))
         self.truck.set_autopilot(True, 8000)
         self.traffic_manager.ignore_lights_percentage(self.truck, 100.0)
-        self.set_truck_speed(4.0)
+        self.set_truck_speed(self.truck_speed)
         self.world.tick()
         self._next_tick_wall = time.monotonic()
 
@@ -313,18 +318,20 @@ class CarlaAirEnvironment:
     def track_waypoint(
         self,
         waypoint: np.ndarray,
-        horizontal_gain: float = 3,
-        vertical_gain: float = 0.8,
+        horizontal_gain: float | None = None,
+        vertical_gain: float | None = None,
         duration: float = 0.05,
     ) -> np.ndarray:
         """Track the SPF waypoint with independent horizontal and vertical P gains."""
+        h_gain = horizontal_gain if horizontal_gain is not None else self.horizontal_gain
+        v_gain = vertical_gain if vertical_gain is not None else self.vertical_gain
         state = self.drone_state()
         error = np.asarray(waypoint) - state.ned
         velocity = np.array(
             [
-                horizontal_gain * error[0],
-                horizontal_gain * error[1],
-                vertical_gain * error[2],
+                h_gain * error[0],
+                h_gain * error[1],
+                v_gain * error[2],
             ]
         )
         speed = float(np.linalg.norm(velocity))
@@ -339,7 +346,7 @@ class CarlaAirEnvironment:
             float(velocity[2]),
             duration=max(duration, 0.1),
             drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
-            yaw_mode=airsim.YawMode(False, math.degrees(state.yaw_rad)),
+            yaw_mode=airsim.YawMode(True, 0),  # yaw 自动跟随速度方向
         )
         return velocity
 

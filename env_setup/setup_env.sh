@@ -118,9 +118,26 @@ else
     echo "=========================================="
 fi
 echo ""
-echo "  Usage:"
-echo "    conda activate $ENV_NAME"
-echo "    cd $SCRIPT_DIR"
-echo "    ./CarlaAir.sh                        # Start simulator"
-echo "    python3 examples_record_demo/record_drone.py"
-echo ""
+
+# Detect if the shell's default conda differs from the one we used
+SHELL_CONDA="$(which conda 2>/dev/null || true)"
+USED_CONDA="$CONDA_EXE"
+ACTIVATE_CMD="conda activate $ENV_NAME"
+
+if [ -n "$SHELL_CONDA" ] && [ "$(realpath "$SHELL_CONDA" 2>/dev/null)" != "$(realpath "$USED_CONDA" 2>/dev/null)" ]; then
+    echo -e "  ${YELLOW}⚠  Note: Your shell uses a different conda than this script.${NC}"
+    echo -e "  ${YELLOW}   Shell conda : $SHELL_CONDA${NC}"
+    echo -e "  ${YELLOW}   Script used : $USED_CONDA${NC}"
+    echo ""
+    echo "  To activate the environment, use:"
+    echo "    source $CONDA_BASE/etc/profile.d/conda.sh"
+    echo "    conda activate $ENV_NAME"
+    echo ""
+else
+    echo "  Usage:"
+    echo "    conda activate $ENV_NAME"
+    echo "    cd $SCRIPT_DIR"
+    echo "    ./CarlaAir.sh                        # Start simulator"
+    echo "    python3 examples_record_demo/record_drone.py"
+    echo ""
+fi

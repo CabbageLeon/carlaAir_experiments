@@ -8,10 +8,14 @@ import json
 import os
 import signal
 import subprocess
+import textwrap
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 from pathlib import Path
+
+import cv2
+import numpy as np
 
 from .environment import CarlaAirEnvironment
 from .metrics import EscortEpisode, LandingEpisode, escort_summary, landing_summary, recovery_time, timing_summary
@@ -97,12 +101,17 @@ class CarlaAirProcess:
             time.sleep(0.25)
 
 
-def _open_environment(args: argparse.Namespace) -> CarlaAirEnvironment:
+def _open_environment(args: argparse.Namespace, config=None) -> CarlaAirEnvironment:
     deadline = time.monotonic() + args.carla_start_timeout
     last_error: Exception | None = None
+    kwargs = {}
+    if config is not None:
+        kwargs.update(truck_speed=config.truck_speed,
+                      horizontal_gain=config.horizontal_gain,
+                      vertical_gain=config.vertical_gain)
     while time.monotonic() < deadline:
         try:
-            return CarlaAirEnvironment(carla_port=args.carla_port, airsim_port=args.airsim_port)
+            return CarlaAirEnvironment(carla_port=args.carla_port, airsim_port=args.airsim_port, **kwargs)
         except Exception as exc:
             last_error = exc
             time.sleep(2.0)
@@ -134,7 +143,47 @@ def _state_sample(env: CarlaAirEnvironment, elapsed: float, visible: bool) -> di
     }
 
 
-def _run_landing(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: int, seconds: float) -> tuple[LandingEpisode, list[dict]]:
+def _debug_frame(frame_bgr: np.ndarray, prompt: str, raw_response: str,
+                 point_xy: tuple[float, float] | None, depth: float | None,
+                 waypoint_ned, frame_idx: int, target_dir: Path) -> None:
+    """Draw VLM prediction overlay and save to debug directory."""
+    h, w = frame_bgr.shape[:2]
+    vis = frame_bgr.copy()
+
+    # Draw crosshair at center
+    cv2.line(vis, (w // 2 - 20, h // 2), (w // 2 + 20, h // 2), (0, 255, 0), 1)
+    cv2.line(vis, (w // 2, h // 2 - 20), (w // 2, h // 2 + 20), (0, 255, 0), 1)
+
+    # Draw VLM-predicted point
+    if point_xy is not None:
+        px = int(point_xy[0] / 1000.0 * w)
+        py = int(point_xy[1] / 1000.0 * h)
+        cv2.circle(vis, (px, py), 12, (0, 0, 255), 3)
+        cv2.circle(vis, (px, py), 4, (0, 0, 255), -1)
+        label = f"VLM point ({point_xy[0]:.0f},{point_xy[1]:.0f}) depth={depth:.1f}" if depth else ""
+        cv2.putText(vis, label, (px + 15, py - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+
+    # Overlay waypoint info
+    y0 = 30
+    if waypoint_ned is not None:
+        wp = waypoint_ned
+        lines = [f"Waypoint NED: [{wp[0]:.1f}, {wp[1]:.1f}, {wp[2]:.1f}]"]
+    else:
+        lines = ["Waypoint: (none)"]
+    if raw_response:
+        lines.append(f"VLM: {raw_response[:120]}")
+    for line in lines:
+        for sub in textwrap.wrap(line, width=80):
+            cv2.putText(vis, sub, (10, y0), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1)
+            y0 += 18
+
+    target_dir.mkdir(parents=True, exist_ok=True)
+    cv2.imwrite(str(target_dir / f"frame_{frame_idx:04d}.png"), vis)
+
+
+def _run_landing(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: int, seconds: float,
+                 debug_dir: Path | None = None) -> tuple[LandingEpisode, list[dict]]:
     env.reset(seed, spawn_index=0)
     policy.reset()
     events: list[dict] = []
@@ -148,8 +197,10 @@ def _run_landing(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: i
     executor = ThreadPoolExecutor(max_workers=1)
     pending = None
     pending_state = None
+    pending_frame: np.ndarray | None = None
     active_waypoint = None
     next_tracking = 0.0
+    decision_idx = 0
     try:
         while time.monotonic() - started < seconds:
             now = env.tick()
@@ -188,6 +239,19 @@ def _run_landing(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: i
                             "raw_response": command.raw_response,
                         }
                     )
+                    # Debug: save annotated frame
+                    if debug_dir is not None and pending_frame is not None:
+                        point_xy, depth = None, None
+                        try:
+                            y_val, x_val, d_val = SPFPolicy.parse_point(command.raw_response)
+                            point_xy, depth = (x_val, y_val), d_val
+                        except Exception:
+                            pass
+                        _debug_frame(pending_frame, command.prompt, command.raw_response,
+                                     point_xy, depth, command.target_ned,
+                                     decision_idx, debug_dir)
+                        pending_frame = None
+                        decision_idx += 1
                 except Exception as exc:
                     next_decision = now + 1.0
                     events.append({"t": elapsed, "type": "no_waypoint", "error": str(exc)})
@@ -204,6 +268,8 @@ def _run_landing(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: i
                 try:
                     frame = env.capture_rgb()
                     pending_state = state
+                    if debug_dir is not None:
+                        pending_frame = frame.copy()
                     pending = executor.submit(policy.act, frame, prompt, state.ned, state.yaw_rad)
                 except Exception as exc:
                     next_decision = now + 1.0
@@ -307,7 +373,8 @@ def _execute_condition(
     escort: list[EscortEpisode] = []
     all_events: list[dict] = []
     output = Path(args.output) / args.task / "SPF" / mode
-    shared_env = None if process is not None else _open_environment(args)
+    debug_dir = output / "debug" if args.debug else None
+    shared_env = None if process is not None else _open_environment(args, policy.config)
     try:
         for seed in args.seeds:
             for episode_index in range(args.episodes_per_seed):
@@ -315,11 +382,11 @@ def _execute_condition(
                 try:
                     if process is not None:
                         process.start(mode, seed, episode_index)
-                        env = _open_environment(args)
+                        env = _open_environment(args, policy.config)
                     if env is None:
                         raise RuntimeError("CARLA-Air environment is unavailable")
                     if args.task == "landing":
-                        episode, events = _run_landing(env, policy, mode, seed, args.seconds)
+                        episode, events = _run_landing(env, policy, mode, seed, args.seconds, debug_dir=debug_dir)
                         landing.append(episode)
                     else:
                         episode, events = _run_escort(env, policy, mode, seed, args.seconds)
@@ -346,7 +413,7 @@ def _execute_condition(
 
 
 def run(args: argparse.Namespace) -> dict[str, object]:
-    policy = SPFPolicy.from_environment(args.model)
+    policy = SPFPolicy.from_interactive(args.model)
     process = CarlaAirProcess(args) if args.restart_carla_per_episode else None
     modes = ("C0", "C1", "C2") if args.task == "landing" else ("C0", "C1")
     modes = modes if args.mode == "all" else (args.mode,)
@@ -391,6 +458,7 @@ def main() -> None:
     parser.add_argument("--carla-cooldown-seconds", type=float, default=10.0)
     parser.add_argument("--restart-carla-per-episode", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--allow-unpaired-landing", action="store_true")
+    parser.add_argument("--debug", action="store_true", help="Save annotated camera frames for each VLM decision")
     args = parser.parse_args()
     if args.task == "escort" and args.mode == "C2":
         parser.error("C2 is defined only for moving-platform landing")
