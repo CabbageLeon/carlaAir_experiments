@@ -1,0 +1,58 @@
+{
+  "episode": {
+    "seed": 203,
+    "visible_seconds": 0.013591041002655402,
+    "landed_on_bed": false,
+    "stable_after_touchdown": false
+  },
+  "events": [
+    {
+      "t": 0.013591041002655402,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 2.912321907999285,
+      "type": "no_waypoint",
+      "error": "Expecting value: line 1 column 2 (char 1)"
+    },
+    {
+      "t": 5.972184692000155,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 7.199514054002066,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 8.214289960000315,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 9.75860535800166,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 12.019853161000356,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        30.982931866652706,
+        -65.66407592459186,
+        24.68632890254396
+      ],
+      "inference_seconds": 1.401517240999965,
+      "ecl_seconds": 0.00011085400183219463,
+      "raw_response": "```json\n[{\"point\": [260, 541], \"depth\": 7, \"label\": \"Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.\"}]\n```"
+    },
+    {
+      "t": 13.882503766002628,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    }
+  ]
+}

@@ -27,7 +27,11 @@ detect_vulkan_icd() {
     for dir in ${ICD_DIRS}; do
         if [ -d "${dir}" ]; then
             for f in "${dir}"/*.json; do
-                [ -f "$f" ] && ICD_FILES="${ICD_FILES:+${ICD_FILES}:}$f"
+                # Only include NVIDIA ICD — avoid software renderer (lvp) and other GPUs
+                case "$f" in
+                    *nvidia*)
+                        [ -f "$f" ] && ICD_FILES="${ICD_FILES:+${ICD_FILES}:}$f" ;;
+                esac
             done
         fi
     done

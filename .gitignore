@@ -36,3 +36,6 @@ Thumbs.db
 *.a
 *.debug
 *.sym
+
+Engine/
+CarlaUE4/
