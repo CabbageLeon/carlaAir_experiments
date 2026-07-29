@@ -1,0 +1,1792 @@
+{
+  "episode": {
+    "seed": 110,
+    "visible_seconds": 26.263082258000395,
+    "landed_on_bed": false,
+    "stable_after_touchdown": false
+  },
+  "events": [
+    {
+      "t": 0.016328495999914594,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        107.49634552001953,
+        -51.72502136230469,
+        26.976003646850586
+      ],
+      "truck_ned": [
+        103.4751205444336,
+        -54.576045989990234,
+        27.456594864837825
+      ],
+      "cargo_bed_ned": [
+        105.71917724609375,
+        -54.06318283081055,
+        26.310437381267548
+      ],
+      "cargo_horizontal_m": 2.9368905540816153,
+      "cargo_down_m": -0.6655662655830383,
+      "drone_speed_mps": 0.16065844739173163,
+      "truck_speed_mps": 0.004184382924195522
+    },
+    {
+      "t": 1.0555295630001638,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        107.4939193725586,
+        -51.69335174560547,
+        27.039289474487305
+      ],
+      "truck_ned": [
+        101.87982940673828,
+        -54.95785140991211,
+        27.45323060732335
+      ],
+      "cargo_bed_ned": [
+        104.11607360839844,
+        -54.43418502807617,
+        26.29673606157303
+      ],
+      "cargo_horizontal_m": 4.349943573054005,
+      "cargo_down_m": -0.7425534129142761,
+      "drone_speed_mps": 0.024501284150149853,
+      "truck_speed_mps": 4.049941985608852
+    },
+    {
+      "t": 1.714438181999867,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        106.64039327961859,
+        -51.56999751342466,
+        27.460896348115227
+      ],
+      "inference_seconds": 1.5767431260001104,
+      "ecl_seconds": 0.0025844319998213905,
+      "raw_response": "[{\"point\": [720, 345], \"depth\": 4, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 2.0929193250003664,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        107.48639678955078,
+        -51.727779388427734,
+        27.04770278930664
+      ],
+      "truck_ned": [
+        98.04818725585938,
+        -56.0613899230957,
+        27.451518952846527
+      ],
+      "cargo_bed_ned": [
+        100.25454711914062,
+        -55.412044525146484,
+        26.301378428936005
+      ],
+      "cargo_horizontal_m": 8.116246623473977,
+      "cargo_down_m": -0.746324360370636,
+      "drone_speed_mps": 0.15873837244341893,
+      "truck_speed_mps": 3.9586679838242373
+    },
+    {
+      "t": 2.8432370950004042,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        106.46394512108745,
+        -51.64952785971499,
+        27.510412106444086
+      ],
+      "inference_seconds": 0.9843662150005912,
+      "ecl_seconds": 0.01642180199996801,
+      "raw_response": "[{\"point\": [674, 392], \"depth\": 5, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 3.1140828260004128,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        107.09577178955078,
+        -51.67226791381836,
+        27.0950870513916
+      ],
+      "truck_ned": [
+        94.37252807617188,
+        -57.52521896362305,
+        27.451445176498964
+      ],
+      "cargo_bed_ned": [
+        96.50588989257812,
+        -56.66536331176758,
+        26.30170053243637
+      ],
+      "cargo_horizontal_m": 11.707971653743053,
+      "cargo_down_m": -0.7933865189552307,
+      "drone_speed_mps": 0.49935426246328424,
+      "truck_speed_mps": 3.9619892197289754
+    },
+    {
+      "t": 3.964297827000337,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        106.00546124595505,
+        -51.74165977854105,
+        27.459047399957758
+      ],
+      "inference_seconds": 0.9905740369995328,
+      "ecl_seconds": 0.010251676000734733,
+      "raw_response": "[{\"point\": [617, 432], \"depth\": 6, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 4.128456082999946,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        106.59366607666016,
+        -51.624114990234375,
+        27.146059036254883
+      ],
+      "truck_ned": [
+        90.87841796875,
+        -59.38016128540039,
+        27.451497972011566
+      ],
+      "cargo_bed_ned": [
+        92.9063491821289,
+        -58.294979095458984,
+        26.301546275615692
+      ],
+      "cargo_horizontal_m": 15.226393915884834,
+      "cargo_down_m": -0.8445127606391907,
+      "drone_speed_mps": 0.37897520313539473,
+      "truck_speed_mps": 3.9622984763538414
+    },
+    {
+      "t": 4.980353064000155,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        105.47219949987797,
+        -51.80516987408902,
+        27.549791636077874
+      ],
+      "inference_seconds": 0.8990770219998012,
+      "ecl_seconds": 0.002216045000750455,
+      "raw_response": "[{\"point\": [625, 472], \"depth\": 6, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 5.15408346500044,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        106.48298645019531,
+        -51.59730911254883,
+        27.16801643371582
+      ],
+      "truck_ned": [
+        87.60737609863281,
+        -61.6049919128418,
+        27.451501023722813
+      ],
+      "cargo_bed_ned": [
+        89.50536346435547,
+        -60.30587387084961,
+        26.30153578519821
+      ],
+      "cargo_horizontal_m": 19.080848576487256,
+      "cargo_down_m": -0.8664806485176086,
+      "drone_speed_mps": 0.07634010664402821,
+      "truck_speed_mps": 3.962173495434456
+    },
+    {
+      "t": 6.155279872999927,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        106.19116973876953,
+        -51.65367126464844,
+        27.192136764526367
+      ],
+      "truck_ned": [
+        84.59573364257812,
+        -64.17037582397461,
+        27.451500337105244
+      ],
+      "cargo_bed_ned": [
+        86.3425064086914,
+        -62.67409133911133,
+        26.301539957523346
+      ],
+      "cargo_horizontal_m": 22.702843315505937,
+      "cargo_down_m": -0.8905968070030212,
+      "drone_speed_mps": 0.5427379385177924,
+      "truck_speed_mps": 3.961302451008196
+    },
+    {
+      "t": 6.255314255000485,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        105.06523471503759,
+        -51.73351883203815,
+        27.674383202981684
+      ],
+      "inference_seconds": 1.1018925690004835,
+      "ecl_seconds": 0.04844313499961572,
+      "raw_response": "[{\"point\": [634, 452], \"depth\": 7, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 7.184345694000513,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.62492370605469,
+        -51.7291259765625,
+        27.2520809173584
+      ],
+      "truck_ned": [
+        81.87794494628906,
+        -67.04529190063477,
+        27.45150071848184
+      ],
+      "cargo_bed_ned": [
+        83.45341491699219,
+        -65.36958694458008,
+        26.301536738872528
+      ],
+      "cargo_horizontal_m": 26.03148050732971,
+      "cargo_down_m": -0.9505441784858704,
+      "drone_speed_mps": 0.6736775300811768,
+      "truck_speed_mps": 3.9615249446854293
+    },
+    {
+      "t": 7.985915037000268,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        104.75150625899988,
+        -51.870323643029614,
+        27.830694474730947
+      ],
+      "inference_seconds": 1.563641314999586,
+      "ecl_seconds": 0.03929905300174141,
+      "raw_response": "[{\"point\": [664, 472], \"depth\": 7, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 8.210771979001038,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.47566986083984,
+        -51.73760986328125,
+        27.2556095123291
+      ],
+      "truck_ned": [
+        79.492919921875,
+        -70.20209121704102,
+        27.4515024733264
+      ],
+      "cargo_bed_ned": [
+        80.87696075439453,
+        -68.36510848999023,
+        26.301531970500946
+      ],
+      "cargo_horizontal_m": 29.69124787348495,
+      "cargo_down_m": -0.9540775418281555,
+      "drone_speed_mps": 0.17105937395283138,
+      "truck_speed_mps": 3.9626297010667937
+    },
+    {
+      "t": 9.111364184001104,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        104.10319011921955,
+        -51.92815520091076,
+        28.074853049546498
+      ],
+      "inference_seconds": 0.9659563360000902,
+      "ecl_seconds": 0.03792286099997,
+      "raw_response": "[{\"point\": [715, 468], \"depth\": 7, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 9.239006464999875,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        77.36717987060547,
+        -73.54170608520508,
+        27.451505219796672
+      ],
+      "cargo_bed_ned": [
+        78.59841918945312,
+        -71.59900283813477,
+        26.301523745059967
+      ],
+      "cargo_horizontal_m": 33.3982750693885,
+      "cargo_down_m": -0.949056088924408,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9626359060521783
+    },
+    {
+      "t": 10.240140750001046,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        75.45697784423828,
+        -77.01032638549805,
+        27.451507356017828
+      ],
+      "cargo_bed_ned": [
+        76.56141662597656,
+        -74.99283981323242,
+        26.30151504278183
+      ],
+      "cargo_horizontal_m": 37.08506512360444,
+      "cargo_down_m": -0.9490647912025452,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.962393216744499
+    },
+    {
+      "t": 10.240140750001046,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        103.85299834370824,
+        -51.92664175405876,
+        28.316449993197253
+      ],
+      "inference_seconds": 0.9699151439999696,
+      "ecl_seconds": 0.03283464200103481,
+      "raw_response": "[{\"point\": [742, 460], \"depth\": 8, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 11.27724828800001,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        73.75606536865234,
+        -80.58654403686523,
+        27.45150834787637
+      ],
+      "cargo_bed_ned": [
+        74.7398910522461,
+        -78.5075798034668,
+        26.301513612270355
+      ],
+      "cargo_horizontal_m": 40.73904874484,
+      "cargo_down_m": -0.9490662217140198,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9622982907824222
+    },
+    {
+      "t": 11.327613192000172,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        103.85791451526708,
+        -51.948108114209,
+        28.501435723308578
+      ],
+      "inference_seconds": 0.9510002019997046,
+      "ecl_seconds": 0.0017812220012274338,
+      "raw_response": "[{\"point\": [784, 465], \"depth\": 8, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 12.28578411000035,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        72.26972961425781,
+        -84.25735092163086,
+        27.45150750875473
+      ],
+      "cargo_bed_ned": [
+        73.13082122802734,
+        -82.1246223449707,
+        26.30151516199112
+      ],
+      "cargo_horizontal_m": 44.359984418619085,
+      "cargo_down_m": -0.9490646719932556,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9622337009709674
+    },
+    {
+      "t": 12.886076281000896,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        103.85496481233177,
+        -51.93522829811885,
+        28.602737432655257
+      ],
+      "inference_seconds": 1.3783661529996607,
+      "ecl_seconds": 0.024468618001264986,
+      "raw_response": "[{\"point\": [807, 462], \"depth\": 8, \"label\": \"moving truck\"}]"
+    },
+    {
+      "t": 13.319390204999763,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        71.00496673583984,
+        -88.01028060913086,
+        27.451506211655214
+      ],
+      "cargo_bed_ned": [
+        71.73861694335938,
+        -85.83041763305664,
+        26.301519811153412
+      ],
+      "cargo_horizontal_m": 47.9443859514254,
+      "cargo_down_m": -0.9490600228309631,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9620540673056475
+    },
+    {
+      "t": 13.920612582999638,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        103.86283068682592,
+        -51.96957447435924,
+        28.721656830583964
+      ],
+      "inference_seconds": 0.8667471490007301,
+      "ecl_seconds": 0.03485458799877961,
+      "raw_response": "[{\"point\": [834, 470], \"depth\": 8, \"label\": \"moving truck\"}]"
+    },
+    {
+      "t": 14.337866590000885,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        69.96873474121094,
+        -91.83259963989258,
+        27.451506059151143
+      ],
+      "cargo_bed_ned": [
+        70.56904602050781,
+        -89.6123161315918,
+        26.301519572734833
+      ],
+      "cargo_horizontal_m": 51.488241846489736,
+      "cargo_down_m": -0.9490602612495422,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.962053242073059
+    },
+    {
+      "t": 14.63817182100047,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 15.340387805000319,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        69.16429901123047,
+        -95.7100715637207,
+        27.451506288023666
+      ],
+      "cargo_bed_ned": [
+        69.6273193359375,
+        -93.45714950561523,
+        26.3015199303627
+      ],
+      "cargo_horizontal_m": 54.987501210912754,
+      "cargo_down_m": -0.9490599036216736,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.962510182189831
+    },
+    {
+      "t": 16.36761479100005,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.59052276611328,
+        -99.6280632019043,
+        27.451506211655214
+      ],
+      "cargo_bed_ned": [
+        68.91690063476562,
+        -97.3513298034668,
+        26.301519811153412
+      ],
+      "cargo_horizontal_m": 58.43881005229203,
+      "cargo_down_m": -0.9490600228309631,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.96258390954958
+    },
+    {
+      "t": 16.36761479100005,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 17.36994279100054,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.24928283691406,
+        -103.57336044311523,
+        27.45150743238628
+      ],
+      "cargo_bed_ned": [
+        68.4407958984375,
+        -101.28134536743164,
+        26.30151504278183
+      ],
+      "cargo_horizontal_m": 61.83892255281764,
+      "cargo_down_m": -0.9490647912025452,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.96238359916408
+    },
+    {
+      "t": 18.235675139000705,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 18.384762007000063,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.12576293945312,
+        -107.53223037719727,
+        27.45150918723084
+      ],
+      "cargo_bed_ned": [
+        68.19731903076172,
+        -105.23334121704102,
+        26.30150932073593
+      ],
+      "cargo_horizontal_m": 65.18678989272239,
+      "cargo_down_m": -0.9490705132484436,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9623764563638457
+    },
+    {
+      "t": 19.41630565000105,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.1346206665039,
+        -111.49381637573242,
+        27.451509416103363
+      ],
+      "cargo_bed_ned": [
+        68.13163757324219,
+        -109.19382095336914,
+        26.30150943994522
+      ],
+      "cargo_horizontal_m": 68.50992858248146,
+      "cargo_down_m": -0.949070394039154,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9624032484523597
+    },
+    {
+      "t": 19.968605496001146,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 20.418543938000767,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.18113708496094,
+        -115.45534896850586,
+        27.451509568607435
+      ],
+      "cargo_bed_ned": [
+        68.15582275390625,
+        -113.15549087524414,
+        26.301508724689484
+      ],
+      "cargo_horizontal_m": 71.85205102195023,
+      "cargo_down_m": -0.9490711092948914,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9623920848850953
+    },
+    {
+      "t": 21.424142836999636,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.23097229003906,
+        -119.4168815612793,
+        27.451509568607435
+      ],
+      "cargo_bed_ned": [
+        68.20274353027344,
+        -117.1170539855957,
+        26.301508486270905
+      ],
+      "cargo_horizontal_m": 75.24298463126546,
+      "cargo_down_m": -0.9490713477134705,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.962392657000124
+    },
+    {
+      "t": 21.624333349999688,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 22.42660807700031,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.27763366699219,
+        -123.37852478027344,
+        27.451509568607435
+      ],
+      "cargo_bed_ned": [
+        68.25057220458984,
+        -121.07868576049805,
+        26.301508486270905
+      ],
+      "cargo_horizontal_m": 78.6869148916849,
+      "cargo_down_m": -0.9490713477134705,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.962393253462786
+    },
+    {
+      "t": 23.33791389000089,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 23.438064750001104,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.32249450683594,
+        -127.34021759033203,
+        27.451509721111506
+      ],
+      "cargo_bed_ned": [
+        68.29640197753906,
+        -125.04036712646484,
+        26.301508724689484
+      ],
+      "cargo_horizontal_m": 82.17848774738826,
+      "cargo_down_m": -0.9490711092948914,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.962391975288749
+    },
+    {
+      "t": 24.452757133999512,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.36685943603516,
+        -131.30193710327148,
+        27.451509568607435
+      ],
+      "cargo_bed_ned": [
+        68.34101104736328,
+        -129.00208282470703,
+        26.301508486270905
+      ],
+      "cargo_horizontal_m": 85.71153403960666,
+      "cargo_down_m": -0.9490713477134705,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9623933805258327
+    },
+    {
+      "t": 25.054021070001,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 25.45508362900091,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.4112548828125,
+        -135.26365661621094,
+        27.451509644975886
+      ],
+      "cargo_bed_ned": [
+        68.38544464111328,
+        -132.96380233764648,
+        26.301508605480194
+      ],
+      "cargo_horizontal_m": 89.2806713522111,
+      "cargo_down_m": -0.9490712285041809,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.96239384579815
+    },
+    {
+      "t": 26.4634858670006,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.42405700683594,
+        -139.22454452514648,
+        27.451510484097525
+      ],
+      "cargo_bed_ned": [
+        68.42570495605469,
+        -136.9245491027832,
+        26.30150455236435
+      ],
+      "cargo_horizontal_m": 92.8824374031274,
+      "cargo_down_m": -0.9490752816200256,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9683941046114994
+    },
+    {
+      "t": 26.71375848000116,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 27.464149935000933,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.1163101196289,
+        -143.16323471069336,
+        27.451502244453877
+      ],
+      "cargo_bed_ned": [
+        68.29297637939453,
+        -140.87001419067383,
+        26.30153387784958
+      ],
+      "cargo_horizontal_m": 96.56467415839715,
+      "cargo_down_m": -0.9490459561347961,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9485074935139277
+    },
+    {
+      "t": 28.426456789999975,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 28.476483204999568,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        68.23551177978516,
+        -147.08654022216797,
+        27.45139726391062
+      ],
+      "cargo_bed_ned": [
+        68.09941101074219,
+        -144.7903289794922,
+        26.301883280277252
+      ],
+      "cargo_horizontal_m": 100.26641557545932,
+      "cargo_down_m": -0.9486965537071228,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.911170783659509
+    },
+    {
+      "t": 29.530822028999864,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        70.21268463134766,
+        -150.55244064331055,
+        27.451159455813468
+      ],
+      "cargo_bed_ned": [
+        69.03480529785156,
+        -148.57607650756836,
+        26.30264550447464
+      ],
+      "cargo_horizontal_m": 103.45628698886455,
+      "cargo_down_m": -0.9479343295097351,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.8791453590589184
+    },
+    {
+      "t": 30.182170766001036,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 30.532926495000538,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        73.54108428955078,
+        -152.4936180114746,
+        27.451426637126133
+      ],
+      "cargo_bed_ned": [
+        71.57925415039062,
+        -151.29277420043945,
+        26.30177229642868
+      ],
+      "cargo_horizontal_m": 105.15644095711934,
+      "cargo_down_m": -0.9488075375556946,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.946561696711031
+    },
+    {
+      "t": 31.56231519800076,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        77.2905502319336,
+        -153.7162094116211,
+        27.45150750875473
+      ],
+      "cargo_bed_ned": [
+        75.11968231201172,
+        -152.95637321472168,
+        26.301515758037567
+      ],
+      "cargo_horizontal_m": 105.66247869227605,
+      "cargo_down_m": -0.9490640759468079,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9607153214541033
+    },
+    {
+      "t": 31.912921178999568,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 32.56564773700029,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        81.0542221069336,
+        -154.93515396118164,
+        27.451516969129443
+      ],
+      "cargo_bed_ned": [
+        78.8602294921875,
+        -154.24499320983887,
+        26.3014914393425
+      ],
+      "cargo_horizontal_m": 105.89687858386235,
+      "cargo_down_m": -0.9490883946418762,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9479083633160843
+    },
+    {
+      "t": 33.5765472080011,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        84.91444396972656,
+        -155.73860931396484,
+        27.451485078316182
+      ],
+      "cargo_bed_ned": [
+        82.6533203125,
+        -155.31718063354492,
+        26.301600635051727
+      ],
+      "cargo_horizontal_m": 106.05547118632524,
+      "cargo_down_m": -0.9489791989326477,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.966696438522995
+    },
+    {
+      "t": 33.676009093001085,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 34.577674903000116,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        88.86494445800781,
+        -155.9313621520996,
+        27.451521241571754
+      ],
+      "cargo_bed_ned": [
+        86.5680160522461,
+        -155.8130283355713,
+        26.301471412181854
+      ],
+      "cargo_horizontal_m": 105.77121588916317,
+      "cargo_down_m": -0.9491084218025208,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.962081579652811
+    },
+    {
+      "t": 35.398467066000194,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 35.59870009300084,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        92.82624053955078,
+        -155.92844581604004,
+        27.451509644975886
+      ],
+      "cargo_bed_ned": [
+        90.5262451171875,
+        -155.92450332641602,
+        26.301509082317352
+      ],
+      "cargo_horizontal_m": 105.24703822771988,
+      "cargo_down_m": -0.9490707516670227,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9613487799278406
+    },
+    {
+      "t": 36.60271975200067,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        96.7882308959961,
+        -155.89893531799316,
+        27.451508958358318
+      ],
+      "cargo_bed_ned": [
+        94.48827362060547,
+        -155.91352462768555,
+        26.301510274410248
+      ],
+      "cargo_horizontal_m": 104.74768309983418,
+      "cargo_down_m": -0.9490695595741272,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9612600282060866
+    },
+    {
+      "t": 37.25451951299965,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 37.60446376500022,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        100.75029754638672,
+        -155.87762832641602,
+        27.451509339734912
+      ],
+      "cargo_bed_ned": [
+        98.45032501220703,
+        -155.88928985595703,
+        26.301508486270905
+      ],
+      "cargo_horizontal_m": 104.38318384124308,
+      "cargo_down_m": -0.9490713477134705,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9612496699585016
+    },
+    {
+      "t": 38.61175918200115,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        104.71221923828125,
+        -155.86854362487793,
+        27.451508119003847
+      ],
+      "cargo_bed_ned": [
+        102.41222381591797,
+        -155.87274932861328,
+        26.301513135433197
+      ],
+      "cargo_horizontal_m": 104.17591466228015,
+      "cargo_down_m": -0.949066698551178,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9598664588301173
+    },
+    {
+      "t": 39.012226414,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 39.61407860700001,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        108.60694885253906,
+        -156.42149925231934,
+        27.451466920319945
+      ],
+      "cargo_bed_ned": [
+        106.3348159790039,
+        -156.06395149230957,
+        26.301646292209625
+      ],
+      "cargo_horizontal_m": 104.3264953339791,
+      "cargo_down_m": -0.9489335417747498,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9528967579828254
+    },
+    {
+      "t": 40.64053781799976,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        112.53096771240234,
+        -156.6923885345459,
+        27.451429231092334
+      ],
+      "cargo_bed_ned": [
+        110.23291015625,
+        -156.5938549041748,
+        26.30177003145218
+      ],
+      "cargo_horizontal_m": 104.96160500835002,
+      "cargo_down_m": -0.948809802532196,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9419920294703354
+    },
+    {
+      "t": 40.84030604199961,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 41.64245605800079,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        116.05155563354492,
+        -155.24798393249512,
+        27.45113115059212
+      ],
+      "cargo_bed_ned": [
+        113.93376922607422,
+        -156.14725875854492,
+        26.302745759487152
+      ],
+      "cargo_horizontal_m": 104.75002654189011,
+      "cargo_down_m": -0.9478340744972229,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.8917131726366456
+    },
+    {
+      "t": 42.59632131499984,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 42.64655176399992,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        118.16513061523438,
+        -152.1116065979004,
+        27.451250245561823
+      ],
+      "cargo_bed_ned": [
+        116.84074783325195,
+        -153.99270629882812,
+        26.30234795808792
+      ],
+      "cargo_horizontal_m": 102.88380299459907,
+      "cargo_down_m": -0.9482318758964539,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.973426255476616
+    },
+    {
+      "t": 43.709535635000975,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        118.76092529296875,
+        -148.08913040161133,
+        27.451420991448686
+      ],
+      "cargo_bed_ned": [
+        118.40013885498047,
+        -150.36084365844727,
+        26.301788866519928
+      ],
+      "cargo_horizontal_m": 99.46603094917813,
+      "cargo_down_m": -0.948790967464447,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9674207649406386
+    },
+    {
+      "t": 44.310768721000386,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 44.711289293000846,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        118.69025421142578,
+        -144.13576126098633,
+        27.451507203513756
+      ],
+      "cargo_bed_ned": [
+        118.68173217773438,
+        -146.43574905395508,
+        26.301516711711884
+      ],
+      "cargo_horizontal_m": 95.61425780672789,
+      "cargo_down_m": -0.9490631222724915,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9671526572447906
+    },
+    {
+      "t": 45.74230863200046,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        119.2846565246582,
+        -140.2364044189453,
+        27.451467072824016
+      ],
+      "cargo_bed_ned": [
+        118.9295654296875,
+        -142.50891494750977,
+        26.301636517047882
+      ],
+      "cargo_horizontal_m": 91.76287740398358,
+      "cargo_down_m": -0.9489433169364929,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.964939937742145
+    },
+    {
+      "t": 46.04286232600043,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 46.74314277400026,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        119.86702728271484,
+        -136.32403564453125,
+        27.451488740276545
+      ],
+      "cargo_bed_ned": [
+        119.56830596923828,
+        -138.60459899902344,
+        26.30157870054245
+      ],
+      "cargo_horizontal_m": 88.00297155712919,
+      "cargo_down_m": -0.949001133441925,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.962103981967603
+    },
+    {
+      "t": 47.74738884400085,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.0383415222168,
+        -132.36820602416992,
+        27.45151262031868
+      ],
+      "cargo_bed_ned": [
+        119.93573760986328,
+        -134.66590881347656,
+        26.301497995853424
+      ],
+      "cargo_horizontal_m": 84.18009730663489,
+      "cargo_down_m": -0.9490818381309509,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9618929018001574
+    },
+    {
+      "t": 47.896291481000844,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 48.74821167400023,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.0667495727539,
+        -128.40682983398438,
+        27.45150918723084
+      ],
+      "cargo_bed_ned": [
+        120.0465316772461,
+        -130.7067413330078,
+        26.301509201526642
+      ],
+      "cargo_horizontal_m": 80.30292532116181,
+      "cargo_down_m": -0.9490706324577332,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9618910971035173
+    },
+    {
+      "t": 49.65454466600113,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 49.75322955300089,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.06709289550781,
+        -124.4449348449707,
+        27.45150918723084
+      ],
+      "cargo_bed_ned": [
+        120.0647087097168,
+        -126.74493408203125,
+        26.301508963108063
+      ],
+      "cargo_horizontal_m": 76.41396509588215,
+      "cargo_down_m": -0.9490708708763123,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9618587825129947
+    },
+    {
+      "t": 50.76566667300085,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.0709342956543,
+        -120.4830207824707,
+        27.451509644975886
+      ],
+      "cargo_bed_ned": [
+        120.06818389892578,
+        -122.78302001953125,
+        26.301508605480194
+      ],
+      "cargo_horizontal_m": 72.52982585754047,
+      "cargo_down_m": -0.9490712285041809,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.961860189987621
+    },
+    {
+      "t": 51.367298108000796,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 51.767451680000704,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.07992935180664,
+        -116.5211067199707,
+        27.451509492238984
+      ],
+      "cargo_bed_ned": [
+        120.07474136352539,
+        -118.82110214233398,
+        26.301508486270905
+      ],
+      "cargo_horizontal_m": 68.65522841027249,
+      "cargo_down_m": -0.9490713477134705,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.961860582713342
+    },
+    {
+      "t": 52.793929128000855,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.09078216552734,
+        -112.5591926574707,
+        27.451509721111506
+      ],
+      "cargo_bed_ned": [
+        120.08451080322266,
+        -114.85918045043945,
+        26.301508724689484
+      ],
+      "cargo_horizontal_m": 64.79191551970618,
+      "cargo_down_m": -0.9490711092948914,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9618595693345995
+    },
+    {
+      "t": 53.044066290000956,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 53.79539217799993,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.1019515991211,
+        -108.59727096557617,
+        27.451509721111506
+      ],
+      "cargo_bed_ned": [
+        120.09539794921875,
+        -110.89725875854492,
+        26.301508724689484
+      ],
+      "cargo_horizontal_m": 60.94153604994461,
+      "cargo_down_m": -0.9490711092948914,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.96186074482389
+    },
+    {
+      "t": 54.65191044800031,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 54.80133075200047,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.11316680908203,
+        -104.63535690307617,
+        27.451509568607435
+      ],
+      "cargo_bed_ned": [
+        120.1065673828125,
+        -106.93534469604492,
+        26.301508486270905
+      ],
+      "cargo_horizontal_m": 57.106499764348904,
+      "cargo_down_m": -0.9490713477134705,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9618599599562607
+    },
+    {
+      "t": 55.81232577699939,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.12440490722656,
+        -100.6734504699707,
+        27.451509568607435
+      ],
+      "cargo_bed_ned": [
+        120.11783218383789,
+        -102.97343826293945,
+        26.301508486270905
+      ],
+      "cargo_horizontal_m": 53.29006632724466,
+      "cargo_down_m": -0.9490713477134705,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.961859761520659
+    },
+    {
+      "t": 56.41398958800073,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 56.81444608199945,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.13565063476562,
+        -96.7115364074707,
+        27.451509644975886
+      ],
+      "cargo_bed_ned": [
+        120.12913513183594,
+        -99.01152420043945,
+        26.301508605480194
+      ],
+      "cargo_horizontal_m": 49.49650573970195,
+      "cargo_down_m": -0.9490712285041809,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.961860153161415
+    },
+    {
+      "t": 57.8206667759996,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.14689636230469,
+        -92.7496223449707,
+        27.451509644975886
+      ],
+      "cargo_bed_ned": [
+        120.14044570922852,
+        -95.04961013793945,
+        26.301508605480194
+      ],
+      "cargo_horizontal_m": 45.731509896762624,
+      "cargo_down_m": -0.9490712285041809,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9618601175831145
+    },
+    {
+      "t": 58.27121902499948,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 58.82208860300034,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.15805435180664,
+        -88.7877082824707,
+        27.451509568607435
+      ],
+      "cargo_bed_ned": [
+        120.15165710449219,
+        -91.08769607543945,
+        26.301508486270905
+      ],
+      "cargo_horizontal_m": 42.00272348865401,
+      "cargo_down_m": -0.9490713477134705,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9618599529120777
+    },
+    {
+      "t": 59.830768865999744,
+      "type": "state",
+      "truck_visible": false,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        105.45195007324219,
+        -51.74119186401367,
+        27.250579833984375
+      ],
+      "truck_ned": [
+        120.1692123413086,
+        -84.8257942199707,
+        27.451509644975886
+      ],
+      "cargo_bed_ned": [
+        120.16282272338867,
+        -87.12578201293945,
+        26.301508605480194
+      ],
+      "cargo_horizontal_m": 38.32073843412054,
+      "cargo_down_m": -0.9490712285041809,
+      "drone_speed_mps": 0.0,
+      "truck_speed_mps": 3.9618599273087156
+    },
+    {
+      "t": 59.98076539900012,
+      "type": "no_waypoint",
+      "error": "SPF response has no point object"
+    },
+    {
+      "t": 60.03478967200044,
+      "type": "episode_end"
+    }
+  ]
+}

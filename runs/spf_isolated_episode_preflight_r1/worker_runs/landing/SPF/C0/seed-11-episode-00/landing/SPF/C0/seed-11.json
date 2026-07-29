@@ -1,0 +1,178 @@
+{
+  "episode": {
+    "seed": 11,
+    "visible_seconds": 5.032334481998987,
+    "landed_on_bed": false,
+    "stable_after_touchdown": false
+  },
+  "events": [
+    {
+      "t": 0.016426722999312915,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        112.62519836425781,
+        -48.86991500854492,
+        21.467138290405273
+      ],
+      "truck_ned": [
+        100.92680847272277,
+        -51.543421022593975,
+        27.456496021710336
+      ],
+      "cargo_bed_ned": [
+        103.16906463727355,
+        -51.03101562708616,
+        26.306613743305206
+      ],
+      "cargo_horizontal_m": 9.699939223833756,
+      "cargo_down_m": 4.839475452899933,
+      "drone_speed_mps": 0.07683749496936798,
+      "truck_speed_mps": 0.0
+    },
+    {
+      "t": 1.0268984489994182,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        112.62519836425781,
+        -48.86991500854492,
+        21.484569549560547
+      ],
+      "truck_ned": [
+        99.54457580670714,
+        -51.91617798060179,
+        27.46073292940855
+      ],
+      "cargo_bed_ned": [
+        101.77110015973449,
+        -51.360437624156475,
+        26.30044835805893
+      ],
+      "cargo_horizontal_m": 11.136164094171255,
+      "cargo_down_m": 4.815878808498383,
+      "drone_speed_mps": 0.011094792746007442,
+      "truck_speed_mps": 3.8444836878611133
+    },
+    {
+      "t": 1.8836390929991467,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        106.77600243499231,
+        -50.20666740935213,
+        25.46438217663813
+      ],
+      "inference_seconds": 1.7210360640001454,
+      "ecl_seconds": 0.0021598359999188688,
+      "raw_response": "[{\"point\": [500, 742], \"depth\": 3, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 2.0541872739995597,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        112.6091537475586,
+        -48.87357711791992,
+        21.46255111694336
+      ],
+      "truck_ned": [
+        95.7537203989923,
+        -53.14710449427366,
+        27.45822964888066
+      ],
+      "cargo_bed_ned": [
+        97.93850433453918,
+        -52.42756103724241,
+        26.308682143688202
+      ],
+      "cargo_horizontal_m": 15.09499108640114,
+      "cargo_down_m": 4.8461310267448425,
+      "drone_speed_mps": 0.5310148088042317,
+      "truck_speed_mps": 3.9620053058704765
+    },
+    {
+      "t": 3.006378029998814,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        100.98568272449856,
+        -51.80104309100204,
+        25.173551501030225
+      ],
+      "inference_seconds": 0.994629418999466,
+      "ecl_seconds": 0.005021468001359608,
+      "raw_response": "[{\"point\": [508, 612], \"depth\": 6, \"label\": \"center of the moving truck\"}]"
+    },
+    {
+      "t": 3.116531447998568,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        110.59510803222656,
+        -49.333961486816406,
+        21.161684036254883
+      ],
+      "truck_ned": [
+        91.94213592633605,
+        -54.80134033411741,
+        27.45824719662778
+      ],
+      "cargo_bed_ned": [
+        94.04713165387511,
+        -53.87409424036741,
+        26.308591663837433
+      ],
+      "cargo_horizontal_m": 17.159496718678675,
+      "cargo_down_m": 5.14690762758255,
+      "drone_speed_mps": 3.041919646089569,
+      "truck_speed_mps": 3.960337896003087
+    },
+    {
+      "t": 4.069052441998792,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        103.24959728321815,
+        -51.667693352012364,
+        22.183015125825182
+      ],
+      "inference_seconds": 0.9105158330003178,
+      "ecl_seconds": 0.03857770399918081,
+      "raw_response": "[{\"point\": [529, 547], \"depth\": 4, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 4.1803524939987255,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        106.99845123291016,
+        -50.208587646484375,
+        21.321529388427734
+      ],
+      "truck_ned": [
+        88.3230334483087,
+        -56.842119447886944,
+        27.45831662416458
+      ],
+      "cargo_bed_ned": [
+        90.32056915387511,
+        -55.70197509974241,
+        26.308363616466522
+      ],
+      "cargo_horizontal_m": 17.55930113511956,
+      "cargo_down_m": 4.986834228038788,
+      "drone_speed_mps": 3.737351983514321,
+      "truck_speed_mps": 3.962318884789605
+    },
+    {
+      "t": 5.035071573998721,
+      "type": "episode_end"
+    }
+  ]
+}
