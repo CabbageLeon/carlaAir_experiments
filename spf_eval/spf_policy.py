@@ -5,7 +5,6 @@ from __future__ import annotations
 import base64
 import json
 import math
-import os
 import time
 from dataclasses import dataclass
 
@@ -13,19 +12,8 @@ import cv2
 import numpy as np
 from openai import OpenAI
 
+from .config import SPFConfig, get_config
 from .policy import Waypoint
-
-
-DASHSCOPE_COMPATIBLE_BASE_URL = "https://ws-9uve2kqdj44bdrwr.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
-
-
-@dataclass(frozen=True)
-class SPFConfig:
-    model: str
-    base_url: str
-    api_key: str
-    horizontal_fov_deg: float = 108.0
-    projection_distance_max_m: float = 8.0
 
 
 class SPFPolicy:
@@ -37,16 +25,21 @@ class SPFPolicy:
 
     @classmethod
     def from_environment(cls, model: str | None = None) -> "SPFPolicy":
-        api_key = os.environ.get("OPENAI_API_KEY")
-        if not api_key:
-            raise RuntimeError("set OPENAI_API_KEY outside version control")
-        return cls(
-            SPFConfig(
-                model=model or os.environ.get("OPENAI_MODEL", "qwen3-vl-flash"),
-                base_url=DASHSCOPE_COMPATIBLE_BASE_URL,
-                api_key=api_key,
-            )
-        )
+        """Create a policy from environment variables and provider presets.
+
+        Set SPF_PROVIDER to switch providers, or override with
+        OPENAI_BASE_URL / OPENAI_MODEL.  See config.py for presets.
+        """
+        config = get_config(model_override=model)
+        return cls(config)
+
+    @classmethod
+    def from_interactive(cls, model: str | None = None) -> "SPFPolicy":
+        """Interactive provider/model/key selection then create the policy."""
+        from .interactive import interactive_config
+
+        config = interactive_config(model_arg=model)
+        return cls(config)
 
     def reset(self) -> None:
         """SPF has no episode state to reset."""
@@ -110,8 +103,8 @@ its image size. Do not use a road, building, sky, or unrelated vehicle as the ta
         started = time.monotonic()
         response = self.client.chat.completions.create(
             model=self.config.model,
-            temperature=0.4,
-            max_tokens=8192,
+            temperature=self.config.temperature,
+            max_tokens=self.config.max_tokens,
             messages=[
                 {
                     "role": "user",

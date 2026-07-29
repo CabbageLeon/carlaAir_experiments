@@ -1,6 +1,0 @@
-# Ignore everything — only these 2 files go into the image
-# Everything else is fetched at runtime by the deploy script
-*
-!docker
-!docker/entrypoint.sh
-!deploy_carlaair.sh
