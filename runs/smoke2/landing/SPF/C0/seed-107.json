@@ -1,0 +1,49 @@
+{
+  "episode": {
+    "seed": 107,
+    "visible_seconds": 6.3274729549993936,
+    "landed_on_bed": false,
+    "stable_after_touchdown": false
+  },
+  "events": [
+    {
+      "t": 0.004797396999492776,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        89.11969165258381,
+        -160.61743019745555,
+        15.449807179738281
+      ],
+      "inference_seconds": 3.4413116719988466,
+      "ecl_seconds": 0.0002936119999503717,
+      "raw_response": "```json\n[{\"point\": [527, 620], \"depth\": 4, \"label\": \"Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.\"}]\n```"
+    },
+    {
+      "t": 3.880549493998842,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        88.73192420749542,
+        -160.56456831049684,
+        15.629739144277341
+      ],
+      "inference_seconds": 2.043908930001635,
+      "ecl_seconds": 0.0007214179968286771,
+      "raw_response": "[{\"point\": [615, 792], \"depth\": 4, \"label\": \"Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.\"}]"
+    },
+    {
+      "t": 6.3274729549993936,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        88.78665252895294,
+        -160.42114100087903,
+        15.622507037294431
+      ],
+      "inference_seconds": 1.7792531849991065,
+      "ecl_seconds": 0.00010601699977996759,
+      "raw_response": "[{\"point\": [602, 835], \"depth\": 4, \"label\": \"Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.\"}]"
+    }
+  ]
+}

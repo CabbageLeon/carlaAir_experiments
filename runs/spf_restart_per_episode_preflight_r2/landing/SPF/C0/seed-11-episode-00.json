@@ -1,0 +1,178 @@
+{
+  "episode": {
+    "seed": 11,
+    "visible_seconds": 5.006737955000062,
+    "landed_on_bed": false,
+    "stable_after_touchdown": false
+  },
+  "events": [
+    {
+      "t": 0.01317985399873578,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        112.62523651123047,
+        -48.87006759643555,
+        21.466758728027344
+      ],
+      "truck_ned": [
+        100.92684661969543,
+        -51.5435736104846,
+        27.455884442315437
+      ],
+      "cargo_bed_ned": [
+        103.1691256724298,
+        -51.0311224386096,
+        26.306070685386658
+      ],
+      "cargo_horizontal_m": 9.699906712261072,
+      "cargo_down_m": 4.839311957359314,
+      "drone_speed_mps": 0.07650619745254517,
+      "truck_speed_mps": 0.0
+    },
+    {
+      "t": 1.0410254500002338,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        112.62523651123047,
+        -48.87006759643555,
+        21.483755111694336
+      ],
+      "truck_ned": [
+        99.52976715192199,
+        -51.92038940638304,
+        27.460724758915603
+      ],
+      "cargo_bed_ned": [
+        101.75613128766418,
+        -51.36399292200804,
+        26.300448775291443
+      ],
+      "cargo_horizontal_m": 11.151551994699568,
+      "cargo_down_m": 4.816693663597107,
+      "drone_speed_mps": 0.011341854929924011,
+      "truck_speed_mps": 3.863825350066913
+    },
+    {
+      "t": 1.9473682209991239,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        104.82630860554313,
+        -50.652404130845156,
+        26.311623088085874
+      ],
+      "inference_seconds": 1.7714241659996333,
+      "ecl_seconds": 0.004610289999618544,
+      "raw_response": "[{\"point\": [500, 720], \"depth\": 4, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 2.0777461220004625,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        112.61909484863281,
+        -48.871463775634766,
+        21.471708297729492
+      ],
+      "truck_ned": [
+        95.73850738629699,
+        -53.15281128138304,
+        27.45824451907538
+      ],
+      "cargo_bed_ned": [
+        97.92296325787902,
+        -52.432337038218975,
+        26.30864441394806
+      ],
+      "cargo_horizontal_m": 15.121378975640374,
+      "cargo_down_m": 4.836936116218567,
+      "drone_speed_mps": 0.2859989361055849,
+      "truck_speed_mps": 3.961310751312083
+    },
+    {
+      "t": 3.0808034149995365,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        110.8749771118164,
+        -49.2700309753418,
+        21.11075210571289
+      ],
+      "truck_ned": [
+        92.10511505231261,
+        -54.7208197042346,
+        27.458240628242493
+      ],
+      "cargo_bed_ned": [
+        94.21403228864074,
+        -53.80250000208616,
+        26.3086097240448
+      ],
+      "cargo_horizontal_m": 17.266451803404806,
+      "cargo_down_m": 5.197857618331909,
+      "drone_speed_mps": 2.88918434758948,
+      "truck_speed_mps": 3.961434050556053
+    },
+    {
+      "t": 3.1814146769993386,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        99.0286293677029,
+        -52.21457690238973,
+        25.78884117940424
+      ],
+      "inference_seconds": 1.05705097200007,
+      "ecl_seconds": 0.04209402199921897,
+      "raw_response": "[{\"point\": [506, 612], \"depth\": 7, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 4.090125967999484,
+      "type": "state",
+      "truck_visible": true,
+      "on_cargo_bed": false,
+      "drone_ned": [
+        107.55264282226562,
+        -50.05205154418945,
+        21.26403045654297
+      ],
+      "truck_ned": [
+        88.64486419782043,
+        -56.64026855677366,
+        27.45831982116215
+      ],
+      "cargo_bed_ned": [
+        90.6528903208673,
+        -55.51871704310179,
+        26.308347463607788
+      ],
+      "cargo_horizontal_m": 17.761927437232632,
+      "cargo_down_m": 5.044317007064819,
+      "drone_speed_mps": 3.6914460600205428,
+      "truck_speed_mps": 3.9617650013189945
+    },
+    {
+      "t": 4.191342916999929,
+      "type": "decision",
+      "prompt": "Follow the moving truck, keep it in view, align above its rear cargo bed, and land safely on the cargo bed.",
+      "waypoint_ned": [
+        102.93818071675956,
+        -51.76157071892955,
+        22.494195099116194
+      ],
+      "inference_seconds": 0.8690857820001838,
+      "ecl_seconds": 0.030440117998296046,
+      "raw_response": "[{\"point\": [530, 562], \"depth\": 4, \"label\": \"center of the moving truck's rear cargo bed\"}]"
+    },
+    {
+      "t": 5.012249810999492,
+      "type": "episode_end"
+    }
+  ]
+}
