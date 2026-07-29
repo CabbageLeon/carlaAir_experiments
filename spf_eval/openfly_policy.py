@@ -165,6 +165,17 @@ class OpenFlyPolicy:
         mem_used = torch.cuda.memory_allocated(self.config.device) / (1024**3) if torch.cuda.is_available() else 0
         print(f"[OpenFly] loaded in {elapsed:.1f}s, GPU mem: {mem_used:.1f} GB")
 
+    def warmup(self) -> None:
+        """Pre-load the model and trigger torch.compile (if enabled).
+
+        Call this BEFORE the episode loop so the drone doesn't sit idle
+        waiting for model loading on the first ``act()`` call.
+        """
+        print("[OpenFly] loading model — this takes ~11s on first run...")
+        _ = self.model       # trigger _load()
+        _ = self.processor   # trigger _load()
+        print("[OpenFly] model ready, starting episode")
+
     # ── PolicyAdapter interface ────────────────────────────────────────────
 
     def reset(self) -> None:

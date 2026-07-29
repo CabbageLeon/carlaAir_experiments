@@ -21,6 +21,7 @@ from .environment import CarlaAirEnvironment
 from .metrics import EscortEpisode, LandingEpisode, escort_summary, landing_summary, recovery_time, timing_summary
 from .prompts import escort_prompt, landing_prompt
 from .spf_policy import SPFPolicy
+from .openfly_policy import OpenFlyPolicy
 
 
 class CarlaAirProcess:
@@ -372,9 +373,14 @@ def _execute_condition(
     landing: list[LandingEpisode] = []
     escort: list[EscortEpisode] = []
     all_events: list[dict] = []
-    output = Path(args.output) / args.task / "SPF" / mode
+    pn = args.policy.upper()
+    output = Path(args.output) / args.task / pn / mode
     debug_dir = output / "debug" if args.debug else None
-    shared_env = None if process is not None else _open_environment(args, policy.config)
+    spf_config = policy.config if args.policy == "spf" else None
+    # Pre-load model before episodes so the drone doesn't wait mid-flight
+    if hasattr(policy, "warmup"):
+        policy.warmup()
+    shared_env = None if process is not None else _open_environment(args, spf_config)
     try:
         for seed in args.seeds:
             for episode_index in range(args.episodes_per_seed):
@@ -382,7 +388,7 @@ def _execute_condition(
                 try:
                     if process is not None:
                         process.start(mode, seed, episode_index)
-                        env = _open_environment(args, policy.config)
+                        env = _open_environment(args, spf_config)
                     if env is None:
                         raise RuntimeError("CARLA-Air environment is unavailable")
                     if args.task == "landing":
@@ -412,8 +418,16 @@ def _execute_condition(
     return landing, escort
 
 
+def _make_policy(args: argparse.Namespace):
+    if args.policy == "openfly":
+        model = args.model if args.model != "qwen3-vl-flash" else None  # None → use default
+        return OpenFlyPolicy.from_environment(model)
+    return SPFPolicy.from_interactive(args.model)
+
+
 def run(args: argparse.Namespace) -> dict[str, object]:
-    policy = SPFPolicy.from_interactive(args.model)
+    policy = _make_policy(args)
+    policy_name = args.policy.upper()
     process = CarlaAirProcess(args) if args.restart_carla_per_episode else None
     modes = ("C0", "C1", "C2") if args.task == "landing" else ("C0", "C1")
     modes = modes if args.mode == "all" else (args.mode,)
@@ -432,8 +446,8 @@ def run(args: argparse.Namespace) -> dict[str, object]:
                 summary: dict[str, float] = landing_summary(landing, c0_landing)
             else:
                 summary = escort_summary(escort)
-            summary.update(json.loads((Path(args.output) / args.task / "SPF" / mode / "timing.json").read_text()))
-            _write_json(Path(args.output) / args.task / "SPF" / mode / "summary.json", summary)
+            summary.update(json.loads((Path(args.output) / args.task / policy_name / mode / "timing.json").read_text()))
+            _write_json(Path(args.output) / args.task / policy_name / mode / "summary.json", summary)
             results[mode] = summary
     finally:
         if process is not None:
@@ -446,6 +460,7 @@ def main() -> None:
     parser.add_argument("task", choices=("landing", "escort"))
     parser.add_argument("mode", choices=("C0", "C1", "C2", "all"))
     parser.add_argument("--model", default="qwen3-vl-flash")
+    parser.add_argument("--policy", choices=("spf", "openfly"), default="spf")
     parser.add_argument("--seeds", type=int, nargs="+", default=(11, 22, 33))
     parser.add_argument("--episodes-per-seed", type=int, default=50)
     parser.add_argument("--seconds", type=float, default=None)
