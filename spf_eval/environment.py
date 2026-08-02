@@ -316,6 +316,7 @@ class CarlaAirEnvironment:
         horizontal_gain: float = 3,
         vertical_gain: float = 0.8,
         duration: float = 0.05,
+        target_yaw: float | None = None,
     ) -> np.ndarray:
         """Track the SPF waypoint with independent horizontal and vertical P gains."""
         state = self.drone_state()
@@ -339,7 +340,7 @@ class CarlaAirEnvironment:
             float(velocity[2]),
             duration=max(duration, 0.1),
             drivetrain=airsim.DrivetrainType.MaxDegreeOfFreedom,
-            yaw_mode=airsim.YawMode(False, math.degrees(state.yaw_rad)),
+            yaw_mode=airsim.YawMode(False, math.degrees(target_yaw if target_yaw is not None else state.yaw_rad)),
         )
         return velocity
 

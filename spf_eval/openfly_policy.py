@@ -64,18 +64,6 @@ _TEMPLATES = np.array(
 )
 
 
-@dataclass(frozen=True)
-class OpenFlyConfig_:
-    """Model-loading configuration for OpenFly-Agent."""
-
-    model_path: str = "IPEC-COMMUNITY/openfly-agent-7b"
-    device: str = "cuda:0"
-    unnorm_key: str = "vln_norm"
-    max_forward_m: float = 8.0
-    use_discrete: bool = False
-    compile_vision: bool = True  # torch.compile on vision backbone
-
-
 class OpenFlyPolicy:
     """Local VLA policy that replaces the SPF cloud-VLM call.
 
@@ -86,20 +74,21 @@ class OpenFlyPolicy:
     _HISTORY_SIZE: int = 2   # number of historical keyframes the model expects
     _TOTAL_FRAMES: int = _HISTORY_SIZE + 1  # current + history
 
-    def __init__(self, config: OpenFlyConfig_):
+    control_method = "p_controller"
+
+    def __init__(self, config: dict):
         self.config = config
         self._model: Optional[OpenVLAForActionPrediction] = None
         self._processor: Optional[PrismaticProcessor] = None
-        self._frame_history: deque[torch.Tensor] = deque(maxlen=self._TOTAL_FRAMES)
+        self._frame_history: deque[np.ndarray] = deque(maxlen=self._TOTAL_FRAMES)
 
     @classmethod
     def from_environment(cls, model_path: str | None = None) -> "OpenFlyPolicy":
-        return cls(
-            OpenFlyConfig_(
-                model_path=model_path or os.environ.get("OPENFLY_MODEL", "IPEC-COMMUNITY/openfly-agent-7b"),
-                device=os.environ.get("OPENFLY_DEVICE", "cuda:0"),
-            )
-        )
+        from . import load_config
+        cfg = dict(load_config()["models"]["openfly"])
+        if model_path:
+            cfg["model_path"] = model_path
+        return cls(cfg)
 
     # ── lazy loading ────────────────────────────────────────────────────────
 
@@ -127,11 +116,11 @@ class OpenFlyPolicy:
         started = time.monotonic()
         attn = self._detect_attn()
         print(f"[OpenFly] attention: {attn}  |  "
-              f"compile_vision: {self.config.compile_vision}  |  "
+              f'compile_vision: {self.config["compile_vision"]}  |  '
               f"history: {self._HISTORY_SIZE} keyframes")
 
         self._processor = AutoProcessor.from_pretrained(
-            self.config.model_path, trust_remote_code=True
+            self.config["model_path"], trust_remote_code=True
         )
 
         load_kwargs: dict = dict(
@@ -143,7 +132,7 @@ class OpenFlyPolicy:
 
         free_gb = 0.0
         if torch.cuda.is_available():
-            free_gb = torch.cuda.mem_get_info(self.config.device)[0] / (1024**3)
+            free_gb = torch.cuda.mem_get_info(self.config["device"])[0] / (1024**3)
         if free_gb < 14.0:
             print(f"[OpenFly] GPU free {free_gb:.1f} GB → 4-bit quantisation")
             load_kwargs["load_in_4bit"] = True
@@ -151,10 +140,10 @@ class OpenFlyPolicy:
             load_kwargs["bnb_4bit_use_double_quant"] = True
 
         self._model = AutoModelForVision2Seq.from_pretrained(
-            self.config.model_path, **load_kwargs
-        ).to(self.config.device).eval()
+            self.config["model_path"], **load_kwargs
+        ).to(self.config["device"]).eval()
 
-        if self.config.compile_vision:
+        if self.config["compile_vision"]:
             torch._dynamo.config.suppress_errors = True
             self._model.vision_backbone = torch.compile(
                 self._model.vision_backbone, mode="reduce-overhead"
@@ -162,7 +151,7 @@ class OpenFlyPolicy:
             print("[OpenFly] vision backbone compiled with torch.compile")
 
         elapsed = time.monotonic() - started
-        mem_used = torch.cuda.memory_allocated(self.config.device) / (1024**3) if torch.cuda.is_available() else 0
+        mem_used = torch.cuda.memory_allocated(self.config["device"]) / (1024**3) if torch.cuda.is_available() else 0
         print(f"[OpenFly] loaded in {elapsed:.1f}s, GPU mem: {mem_used:.1f} GB")
 
     def warmup(self) -> None:
@@ -182,6 +171,10 @@ class OpenFlyPolicy:
         """Clear the rolling frame buffer at episode start."""
         self._frame_history.clear()
 
+    def get_fifo_frames(self) -> list:
+        """Return current FIFO frames [oldest, ..., newest] (up to 3 frames)."""
+        return list(self._frame_history)
+
     def _preprocess_frame(self, image_bgr: np.ndarray) -> torch.Tensor:
         """Convert a BGR image to a preprocessed 6-channel pixel tensor (1, 6, 224, 224)."""
         image = Image.fromarray(cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB))
@@ -196,58 +189,25 @@ class OpenFlyPolicy:
         current_ned: np.ndarray,
         yaw_rad: float,
     ) -> Waypoint:
-        """Run the VLA model and convert its 8-DoF action to an AirSim NED waypoint.
-
-        Uses the current observation plus up to 2 historical keyframes as
-        multi-image input (channel-stacked, matching training distribution).
-        """
+        device = self.config["device"]
         started = time.monotonic()
 
-        # 1. Preprocess current frame
-        curr_pv = self._preprocess_frame(image_bgr)  # (6, 224, 224)
+        # FIFO history: current frame + last 2 observed frames (matches his_step=2)
+        self._frame_history.append(image_bgr)
+        hist = list(self._frame_history)
+        frames = [
+            hist[-1],
+            hist[-2] if len(hist) > 1 else hist[-1],
+            hist[-3] if len(hist) > 2 else hist[-1],
+        ]
+        images = [Image.fromarray(cv2.cvtColor(f, cv2.COLOR_BGR2RGB)) for f in frames]
 
-        # 2. Build multi-frame input: current + up to `_HISTORY_SIZE` historical keyframes
-        #    Paper: each historical keyframe is ~1 token after compression, but the model
-        #    checkpoint expects standard 6-channel inputs for all frames.  We use the raw
-        #    frames; the model's training-time pipeline handled the compression internally.
-        frames_pv: list[torch.Tensor] = [curr_pv]
+        # Combined processor call (official OpenFly style: 3-image list)
+        inputs = self.processor(prompt, images).to(device, dtype=torch.bfloat16)
 
-        # Fill remaining slots from history; if buffer isn't full yet (episode start),
-        # repeat current frame (matches training: initial steps use identical frames).
-        history_list = list(self._frame_history)
-        needed = self._TOTAL_FRAMES - 1  # slots aside from current
-        padding_needed = needed - len(history_list)
-
-        for pv in history_list[-needed:]:  # most recent history frames
-            frames_pv.append(pv)
-
-        for _ in range(max(0, padding_needed)):
-            frames_pv.append(curr_pv)  # pad with current frame
-
-        # Channel-stack: (1, 6×N, 224, 224)
-        num_frames = len(frames_pv)
-        pixel_values = torch.stack(frames_pv, dim=0).view(
-            1, -1, frames_pv[0].shape[-2], frames_pv[0].shape[-1]
-        )
-
-        # 3. Update frame history for next step
-        self._frame_history.append(curr_pv)
-
-        # 4. Tokenize
-        text_inputs = self.processor.tokenizer(
-            prompt, return_tensors="pt", padding=False, truncation=True,
-        )
-        input_ids = text_inputs["input_ids"].to(self.config.device)
-        attention_mask = text_inputs["attention_mask"].to(self.config.device)
-        pixel_values = pixel_values.to(self.config.device, dtype=torch.bfloat16)
-
-        # 5. Predict action
+        # Predict action (official generate-based predict_action)
         with torch.no_grad():
-            self.model.vision_backbone.set_num_images_in_input(num_frames)
-            action = self.model.predict_action(
-                input_ids=input_ids, attention_mask=attention_mask,
-                pixel_values=pixel_values, unnorm_key=self.config.unnorm_key,
-            )
+            action = self.model.predict_action(**inputs, unnorm_key=self.config["unnorm_key"], do_sample=False)
         finished = time.monotonic()
 
         # 6. Decode action vector
@@ -266,12 +226,12 @@ class OpenFlyPolicy:
 
         # 8. Optional discretisation
         raw_action = action.ravel().copy()
-        if self.config.use_discrete:
+        if self.config["use_discrete"]:
             best = int(np.argmin(np.linalg.norm(_TEMPLATES - raw_action, axis=1)))
             _, a1, a2, a3, a4, a5, a6, a7 = _TEMPLATES[best].tolist()
 
         # 9. Net displacements (body frame)
-        forward_m = min(float(a1), self.config.max_forward_m)
+        forward_m = min(float(a1), self.config["max_forward_m"])
         lateral_m = float(a7 - a6)
         vertical_m = float(a5 - a4)
         turn_deg = float(a2 - a3)

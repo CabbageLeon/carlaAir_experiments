@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import json
 import math
+import os
 import time
 from dataclasses import dataclass
 
@@ -12,34 +13,31 @@ import cv2
 import numpy as np
 from openai import OpenAI
 
-from .config import SPFConfig, get_config
 from .policy import Waypoint
 
 
 class SPFPolicy:
     """One VLM call produces one spatial point and one AirSim NED waypoint."""
 
-    def __init__(self, config: SPFConfig):
+    control_method = "p_controller"  # SPF uses P-controller for fine tracking
+
+    def __init__(self, config: dict):
         self.config = config
-        self.client = OpenAI(api_key=config.api_key, base_url=config.base_url)
+        api_key = config["api_key"] or os.environ.get("OPENAI_API_KEY", "")
+        if not api_key:
+            raise RuntimeError(
+                "SPF api_key is empty and OPENAI_API_KEY is not set. "
+                "Add api_key to config.json or export OPENAI_API_KEY."
+            )
+        self.client = OpenAI(api_key=api_key, base_url=config["base_url"])
 
     @classmethod
     def from_environment(cls, model: str | None = None) -> "SPFPolicy":
-        """Create a policy from environment variables and provider presets.
-
-        Set SPF_PROVIDER to switch providers, or override with
-        OPENAI_BASE_URL / OPENAI_MODEL.  See config.py for presets.
-        """
-        config = get_config(model_override=model)
-        return cls(config)
-
-    @classmethod
-    def from_interactive(cls, model: str | None = None) -> "SPFPolicy":
-        """Interactive provider/model/key selection then create the policy."""
-        from .interactive import interactive_config
-
-        config = interactive_config(model_arg=model)
-        return cls(config)
+        from . import load_config
+        cfg = load_config()["models"]["spf"]
+        if model:
+            cfg = dict(cfg, model=model)
+        return cls(cfg)
 
     def reset(self) -> None:
         """SPF has no episode state to reset."""
@@ -102,9 +100,9 @@ its image size. Do not use a road, building, sky, or unrelated vehicle as the ta
             raise RuntimeError("could not JPEG-encode UAV frame")
         started = time.monotonic()
         response = self.client.chat.completions.create(
-            model=self.config.model,
-            temperature=self.config.temperature,
-            max_tokens=self.config.max_tokens,
+            model=self.config["model"],
+            temperature=self.config["temperature"],
+            max_tokens=self.config["max_tokens"],
             messages=[
                 {
                     "role": "user",
@@ -125,8 +123,8 @@ its image size. Do not use a road, building, sky, or unrelated vehicle as the ta
         raw = response.choices[0].message.content or ""
         y, x, depth = self.parse_point(raw)
 
-        distance = depth / 10.0 * self.config.projection_distance_max_m
-        fov_factor = math.tan(math.radians(self.config.horizontal_fov_deg / 2.0))
+        distance = depth / 10.0 * self.config["projection_distance_max_m"]
+        fov_factor = math.tan(math.radians(self.config["horizontal_fov_deg"] / 2.0))
         lateral = ((x / 1000.0 * width - width / 2.0) / (width / 2.0)) * distance * fov_factor
         up = ((height / 2.0 - y / 1000.0 * height) / (height / 2.0)) * distance * fov_factor
         forward = distance

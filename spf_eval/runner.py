@@ -19,7 +19,9 @@ import numpy as np
 
 from .environment import CarlaAirEnvironment
 from .metrics import EscortEpisode, LandingEpisode, escort_summary, landing_summary, recovery_time, timing_summary
+import math
 from .prompts import escort_prompt, landing_prompt
+from . import load_config
 from .spf_policy import SPFPolicy
 from .openfly_policy import OpenFlyPolicy
 
@@ -102,17 +104,12 @@ class CarlaAirProcess:
             time.sleep(0.25)
 
 
-def _open_environment(args: argparse.Namespace, config=None) -> CarlaAirEnvironment:
+def _open_environment(args: argparse.Namespace, scenario: dict | None = None) -> CarlaAirEnvironment:
     deadline = time.monotonic() + args.carla_start_timeout
     last_error: Exception | None = None
-    kwargs = {}
-    if config is not None:
-        kwargs.update(truck_speed=config.truck_speed,
-                      horizontal_gain=config.horizontal_gain,
-                      vertical_gain=config.vertical_gain)
     while time.monotonic() < deadline:
         try:
-            return CarlaAirEnvironment(carla_port=args.carla_port, airsim_port=args.airsim_port, **kwargs)
+            return CarlaAirEnvironment(carla_port=args.carla_port, airsim_port=args.airsim_port)
         except Exception as exc:
             last_error = exc
             time.sleep(2.0)
@@ -183,7 +180,7 @@ def _debug_frame(frame_bgr: np.ndarray, prompt: str, raw_response: str,
     cv2.imwrite(str(target_dir / f"frame_{frame_idx:04d}.png"), vis)
 
 
-def _run_landing(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: int, seconds: float,
+def _run_landing(env: CarlaAirEnvironment, policy, policy_name: str, mode: str, seed: int, seconds: float,
                  debug_dir: Path | None = None) -> tuple[LandingEpisode, list[dict]]:
     env.reset(seed, spawn_index=0)
     policy.reset()
@@ -200,6 +197,7 @@ def _run_landing(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: i
     pending_state = None
     pending_frame: np.ndarray | None = None
     active_waypoint = None
+    target_yaw = None
     next_tracking = 0.0
     decision_idx = 0
     try:
@@ -228,6 +226,34 @@ def _run_landing(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: i
                     active_waypoint = command.target_ned
                     next_tracking = now
                     decision_time = command.inference_finished_at - command.inference_started_at
+
+                    # Parse action dimensions
+                    fwd_m = lat_m = vert_m = turn_d = 0.0
+                    raw = command.raw_response
+                    try:
+                        if 'fwd=' in raw:
+                            fwd_m = abs(float(raw.split('fwd=')[-1].split()[0]))
+                            lat_m = abs(float(raw.split('lat=')[-1].split()[0]))
+                            vert_m = abs(float(raw.split('vert=')[-1].split()[0]))
+                            turn_d = abs(float(raw.split('turn=')[-1].replace(chr(176),'').split()[0]))
+                    except Exception:
+                        pass
+                    is_stop = 'STOP' in raw
+
+                    print(f"[vlm] dt={decision_time*1000:.0f}ms fwd={fwd_m:.2f} turn={turn_d:.1f}" + (" STOP" if is_stop else ""))
+
+                    if not is_stop and (fwd_m > 0.1 or lat_m > 0.1 or vert_m > 0.1 or turn_d > 0.1):
+                        if turn_d > 0.1:
+                            sign = -1 if '-' in raw.split('turn=')[-1] else 1
+                            target_yaw = pending_state.yaw_rad + math.radians(sign * turn_d)
+                        else:
+                            target_yaw = None
+                    else:
+                        active_waypoint = None
+                        target_yaw = None
+                        if not is_stop:
+                            print("[vlm] all dims < 0.1, skipping")
+
                     next_decision = command.inference_finished_at
                     events.append(
                         {
@@ -259,13 +285,13 @@ def _run_landing(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: i
                 pending = None
                 pending_state = None
             if active_waypoint is not None and now >= next_tracking:
-                velocity = env.track_waypoint(active_waypoint, duration=0.15)
+                velocity = env.track_waypoint(active_waypoint, duration=0.15, target_yaw=target_yaw)
                 next_tracking = now + 0.1
                 if float((velocity**2).sum() ** 0.5) < 0.05:
                     active_waypoint = None
             if pending is None and now >= next_decision:
                 direction, motion, _ = env.cargo_relation()
-                prompt = landing_prompt(mode, direction, motion, env.landing_phase())
+                prompt = landing_prompt(policy_name, mode, direction, motion, env.landing_phase())
                 try:
                     frame = env.capture_rgb()
                     pending_state = state
@@ -299,7 +325,7 @@ def _run_landing(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: i
     return LandingEpisode(seed, visible_seconds, landed_on_bed, stable), events
 
 
-def _run_escort(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: int, seconds: float) -> tuple[EscortEpisode, list[dict]]:
+def _run_escort(env: CarlaAirEnvironment, policy, policy_name: str, mode: str, seed: int, seconds: float) -> tuple[EscortEpisode, list[dict]]:
     env.reset(seed, spawn_index=0)
     policy.reset()
     events: list[dict] = []
@@ -329,7 +355,7 @@ def _run_escort(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: in
             if pending is not None and pending.done():
                 try:
                     command = pending.result()
-                    env.track_waypoint(command.target_ned)
+                    env.track_waypoint(command.target_ned, target_yaw=None)
                     decision_time = command.inference_finished_at - command.inference_started_at
                     next_decision = command.inference_finished_at
                     events.append(
@@ -350,7 +376,7 @@ def _run_escort(env: CarlaAirEnvironment, policy: SPFPolicy, mode: str, seed: in
             if pending is None and now >= next_decision:
                 state = env.drone_state()
                 direction, motion, _ = env.cargo_relation()
-                prompt = escort_prompt(mode, occluded, direction, motion, "occlusion recovery" if occluded else "normal escort")
+                prompt = escort_prompt(policy_name, mode, occluded, direction, motion, "occlusion recovery" if occluded else "normal escort")
                 try:
                     frame = env.capture_rgb()
                     pending = executor.submit(policy.act, frame, prompt, state.ned, state.yaw_rad)
@@ -376,11 +402,11 @@ def _execute_condition(
     pn = args.policy.upper()
     output = Path(args.output) / args.task / pn / mode
     debug_dir = output / "debug" if args.debug else None
-    spf_config = policy.config if args.policy == "spf" else None
+    scenario = load_config()["scenario"]
     # Pre-load model before episodes so the drone doesn't wait mid-flight
     if hasattr(policy, "warmup"):
         policy.warmup()
-    shared_env = None if process is not None else _open_environment(args, spf_config)
+    shared_env = None if process is not None else _open_environment(args, scenario)
     try:
         for seed in args.seeds:
             for episode_index in range(args.episodes_per_seed):
@@ -388,14 +414,14 @@ def _execute_condition(
                 try:
                     if process is not None:
                         process.start(mode, seed, episode_index)
-                        env = _open_environment(args, spf_config)
+                        env = _open_environment(args, scenario)
                     if env is None:
                         raise RuntimeError("CARLA-Air environment is unavailable")
                     if args.task == "landing":
-                        episode, events = _run_landing(env, policy, mode, seed, args.seconds, debug_dir=debug_dir)
+                        episode, events = _run_landing(env, policy, args.policy, mode, seed, args.seconds, debug_dir=debug_dir)
                         landing.append(episode)
                     else:
-                        episode, events = _run_escort(env, policy, mode, seed, args.seconds)
+                        episode, events = _run_escort(env, policy, args.policy, mode, seed, args.seconds)
                         escort.append(episode)
                     all_events.extend(events)
                     name = (
@@ -419,10 +445,11 @@ def _execute_condition(
 
 
 def _make_policy(args: argparse.Namespace):
+    cfg = load_config()
+    model_cfg = cfg["models"][args.policy]
     if args.policy == "openfly":
-        model = args.model if args.model != "qwen3-vl-flash" else None  # None → use default
-        return OpenFlyPolicy.from_environment(model)
-    return SPFPolicy.from_interactive(args.model)
+        return OpenFlyPolicy(model_cfg)
+    return SPFPolicy(model_cfg)
 
 
 def run(args: argparse.Namespace) -> dict[str, object]:
