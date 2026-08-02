@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 import cv2
 import numpy as np
+import httpx
 from openai import OpenAI
 
 from .policy import Waypoint
@@ -29,7 +30,11 @@ class SPFPolicy:
                 "SPF api_key is empty and OPENAI_API_KEY is not set. "
                 "Add api_key to config.json or export OPENAI_API_KEY."
             )
-        self.client = OpenAI(api_key=api_key, base_url=config["base_url"])
+        self.client = OpenAI(
+            api_key=api_key,
+            base_url=config["base_url"],
+            http_client=httpx.Client(proxy=None, trust_env=False),
+        )
 
     @classmethod
     def from_environment(cls, model: str | None = None) -> "SPFPolicy":
