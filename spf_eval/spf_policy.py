@@ -26,10 +26,19 @@ class SPFPolicy:
         self.config = config
         api_key = config["api_key"] or os.environ.get("OPENAI_API_KEY", "")
         if not api_key:
-            raise RuntimeError(
-                "SPF api_key is empty and OPENAI_API_KEY is not set. "
-                "Add api_key to config.json or export OPENAI_API_KEY."
-            )
+            print("SPF 需要 API Key (阿里云 DashScope)")
+            print("  获取地址: https://bailian.console.aliyun.com/")
+            api_key = input("请输入 API Key: ").strip()
+            if not api_key:
+                raise RuntimeError("未提供 API Key，已取消。")
+            save = input("保存到 config.json 以便下次使用？[Y/n]: ").strip().lower()
+            if save in ("", "y", "yes"):
+                from pathlib import Path
+                cfg_path = Path(__file__).resolve().parent.parent / "config.json"
+                _cfg = json.loads(cfg_path.read_text())
+                _cfg["models"]["spf"]["api_key"] = api_key
+                cfg_path.write_text(json.dumps(_cfg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+                print(f"已保存到 {cfg_path}")
         self.client = OpenAI(
             api_key=api_key,
             base_url=config["base_url"],

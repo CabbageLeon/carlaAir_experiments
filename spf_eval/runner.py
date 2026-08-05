@@ -17,13 +17,13 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from .environment import CarlaAirEnvironment
+from .environment import CarlaAirEnvironment, TruckProfile
 from .metrics import EscortEpisode, LandingEpisode, escort_summary, landing_summary, recovery_time, timing_summary
 import math
 from .prompts import escort_prompt, landing_prompt
 from . import load_config
 from .spf_policy import SPFPolicy
-from .openfly_policy import OpenFlyPolicy
+# OpenFlyPolicy imported lazily in _make_policy
 
 
 class CarlaAirProcess:
@@ -104,12 +104,12 @@ class CarlaAirProcess:
             time.sleep(0.25)
 
 
-def _open_environment(args: argparse.Namespace, scenario: dict | None = None) -> CarlaAirEnvironment:
+def _open_environment(args: argparse.Namespace, profile: TruckProfile | None = None) -> CarlaAirEnvironment:
     deadline = time.monotonic() + args.carla_start_timeout
     last_error: Exception | None = None
     while time.monotonic() < deadline:
         try:
-            return CarlaAirEnvironment(carla_port=args.carla_port, airsim_port=args.airsim_port)
+            return CarlaAirEnvironment(carla_port=args.carla_port, airsim_port=args.airsim_port, profile=profile, go_straight=args.go_straight)
         except Exception as exc:
             last_error = exc
             time.sleep(2.0)
@@ -181,8 +181,8 @@ def _debug_frame(frame_bgr: np.ndarray, prompt: str, raw_response: str,
 
 
 def _run_landing(env: CarlaAirEnvironment, policy, policy_name: str, mode: str, seed: int, seconds: float,
-                 debug_dir: Path | None = None) -> tuple[LandingEpisode, list[dict]]:
-    env.reset(seed, spawn_index=0)
+                 spawn_index: int = 0, debug_dir: Path | None = None) -> tuple[LandingEpisode, list[dict]]:
+    env.reset(seed, spawn_index=spawn_index)
     policy.reset()
     events: list[dict] = []
     next_decision = 0.0
@@ -227,32 +227,45 @@ def _run_landing(env: CarlaAirEnvironment, policy, policy_name: str, mode: str, 
                     next_tracking = now
                     decision_time = command.inference_finished_at - command.inference_started_at
 
-                    # Parse action dimensions
-                    fwd_m = lat_m = vert_m = turn_d = 0.0
-                    raw = command.raw_response
-                    try:
-                        if 'fwd=' in raw:
-                            fwd_m = abs(float(raw.split('fwd=')[-1].split()[0]))
-                            lat_m = abs(float(raw.split('lat=')[-1].split()[0]))
-                            vert_m = abs(float(raw.split('vert=')[-1].split()[0]))
-                            turn_d = abs(float(raw.split('turn=')[-1].replace(chr(176),'').split()[0]))
-                    except Exception:
-                        pass
-                    is_stop = 'STOP' in raw
-
-                    print(f"[vlm] dt={decision_time*1000:.0f}ms fwd={fwd_m:.2f} turn={turn_d:.1f}" + (" STOP" if is_stop else ""))
-
-                    if not is_stop and (fwd_m > 0.1 or lat_m > 0.1 or vert_m > 0.1 or turn_d > 0.1):
-                        if turn_d > 0.1:
-                            sign = -1 if '-' in raw.split('turn=')[-1] else 1
-                            target_yaw = pending_state.yaw_rad + math.radians(sign * turn_d)
+                    if policy_name == "OPENFLY":
+                        # OpenFly outputs fwd=/lat=/vert=/turn= tokens
+                        fwd_m = lat_m = vert_m = turn_d = 0.0
+                        raw = command.raw_response
+                        try:
+                            if 'fwd=' in raw:
+                                fwd_m = abs(float(raw.split('fwd=')[-1].split()[0]))
+                                lat_m = abs(float(raw.split('lat=')[-1].split()[0]))
+                                vert_m = abs(float(raw.split('vert=')[-1].split()[0]))
+                                turn_d = abs(float(raw.split('turn=')[-1].replace(chr(176), '').split()[0]))
+                        except Exception:
+                            pass
+                        is_stop = 'STOP' in raw
+                        print(f"[vlm] dt={decision_time*1000:.0f}ms fwd={fwd_m:.2f} turn={turn_d:.1f}" + (" STOP" if is_stop else ""))
+                        if not is_stop and (fwd_m > 0.1 or lat_m > 0.1 or vert_m > 0.1 or turn_d > 0.1):
+                            if turn_d > 0.1:
+                                sign = -1 if '-' in raw.split('turn=')[-1] else 1
+                                target_yaw = pending_state.yaw_rad + math.radians(sign * turn_d)
+                            else:
+                                target_yaw = None
                         else:
+                            active_waypoint = None
                             target_yaw = None
+                            if not is_stop:
+                                print("[vlm] all dims < 0.1, skipping")
                     else:
-                        active_waypoint = None
-                        target_yaw = None
-                        if not is_stop:
-                            print("[vlm] all dims < 0.1, skipping")
+                        # SPF: waypoint comes from image point → NED projection; derive yaw from direction
+                        delta = command.target_ned - pending_state.ned
+                        point_y, point_x, point_d = 0.0, 0.0, 0.0
+                        try:
+                            point_y, point_x, point_d = SPFPolicy.parse_point(command.raw_response)
+                        except Exception:
+                            pass
+                        print(f"[spf] dt={decision_time*1000:.0f}ms point=({point_x:.0f},{point_y:.0f}) depth={point_d:.0f}")
+                        if np.linalg.norm(delta[:2]) < 0.1:
+                            active_waypoint = None
+                            target_yaw = None
+                        else:
+                            target_yaw = math.atan2(delta[1], delta[0])
 
                     next_decision = command.inference_finished_at
                     events.append(
@@ -325,8 +338,8 @@ def _run_landing(env: CarlaAirEnvironment, policy, policy_name: str, mode: str, 
     return LandingEpisode(seed, visible_seconds, landed_on_bed, stable), events
 
 
-def _run_escort(env: CarlaAirEnvironment, policy, policy_name: str, mode: str, seed: int, seconds: float) -> tuple[EscortEpisode, list[dict]]:
-    env.reset(seed, spawn_index=0)
+def _run_escort(env: CarlaAirEnvironment, policy, policy_name: str, mode: str, seed: int, seconds: float, spawn_index: int = 0) -> tuple[EscortEpisode, list[dict]]:
+    env.reset(seed, spawn_index=spawn_index)
     policy.reset()
     events: list[dict] = []
     samples: list[tuple[float, float]] = []
@@ -394,7 +407,8 @@ def _run_escort(env: CarlaAirEnvironment, policy, policy_name: str, mode: str, s
 
 
 def _execute_condition(
-    policy: SPFPolicy, args: argparse.Namespace, mode: str, process: CarlaAirProcess | None
+    policy: SPFPolicy, args: argparse.Namespace, mode: str, process: CarlaAirProcess | None,
+    truck_profile: TruckProfile | None = None,
 ) -> tuple[list[LandingEpisode], list[EscortEpisode]]:
     landing: list[LandingEpisode] = []
     escort: list[EscortEpisode] = []
@@ -402,11 +416,10 @@ def _execute_condition(
     pn = args.policy.upper()
     output = Path(args.output) / args.task / pn / mode
     debug_dir = output / "debug" if args.debug else None
-    scenario = load_config()["scenario"]
     # Pre-load model before episodes so the drone doesn't wait mid-flight
     if hasattr(policy, "warmup"):
         policy.warmup()
-    shared_env = None if process is not None else _open_environment(args, scenario)
+    shared_env = None if process is not None else _open_environment(args, truck_profile)
     try:
         for seed in args.seeds:
             for episode_index in range(args.episodes_per_seed):
@@ -414,14 +427,14 @@ def _execute_condition(
                 try:
                     if process is not None:
                         process.start(mode, seed, episode_index)
-                        env = _open_environment(args, scenario)
+                        env = _open_environment(args, truck_profile)
                     if env is None:
                         raise RuntimeError("CARLA-Air environment is unavailable")
                     if args.task == "landing":
-                        episode, events = _run_landing(env, policy, args.policy, mode, seed, args.seconds, debug_dir=debug_dir)
+                        episode, events = _run_landing(env, policy, args.policy, mode, seed, args.seconds, spawn_index=args.spawn_index, debug_dir=debug_dir)
                         landing.append(episode)
                     else:
-                        episode, events = _run_escort(env, policy, args.policy, mode, seed, args.seconds)
+                        episode, events = _run_escort(env, policy, args.policy, mode, seed, args.seconds, spawn_index=args.spawn_index)
                         escort.append(episode)
                     all_events.extend(events)
                     name = (
@@ -448,11 +461,12 @@ def _make_policy(args: argparse.Namespace):
     cfg = load_config()
     model_cfg = cfg["models"][args.policy]
     if args.policy == "openfly":
+        from .openfly_policy import OpenFlyPolicy
         return OpenFlyPolicy(model_cfg)
     return SPFPolicy(model_cfg)
 
 
-def run(args: argparse.Namespace) -> dict[str, object]:
+def run(args: argparse.Namespace, truck_profile: TruckProfile | None = None) -> dict[str, object]:
     policy = _make_policy(args)
     policy_name = args.policy.upper()
     process = CarlaAirProcess(args) if args.restart_carla_per_episode else None
@@ -462,7 +476,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     c0_landing: list[LandingEpisode] | None = None
     try:
         for mode in modes:
-            landing, escort = _execute_condition(policy, args, mode, process)
+            landing, escort = _execute_condition(policy, args, mode, process, truck_profile)
             if args.task == "landing":
                 if mode == "C0":
                     c0_landing = landing
@@ -482,6 +496,55 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     return results if args.mode == "all" else results[args.mode]
 
 
+KNOWN_TRUCKS = [
+    ("European HGV (默认)",  "vehicle.carlamotors.european_hgv", TruckProfile()),
+    ("Carlacola",            "vehicle.carlamotors.carlacola",     TruckProfile(bed_center_x=-2.30, bed_half_length=1.45, bed_half_width=1.10, bed_height=1.15)),
+    ("Tesla Model 3",        "vehicle.tesla.model3",              TruckProfile(bed_center_x=-1.50, bed_half_length=0.80, bed_half_width=0.70, bed_height=0.75)),
+    ("Audi TT",              "vehicle.audi.tt",                   TruckProfile(bed_center_x=-1.20, bed_half_length=0.60, bed_half_width=0.65, bed_height=0.70)),
+    ("Ford Mustang",         "vehicle.ford.mustang",              TruckProfile(bed_center_x=-1.60, bed_half_length=0.75, bed_half_width=0.70, bed_height=0.75)),
+    ("Mini Cooper S",        "vehicle.mini.cooper_s",             TruckProfile(bed_center_x=-1.00, bed_half_length=0.50, bed_half_width=0.60, bed_height=0.70)),
+    ("BMW Grandtourer",      "vehicle.bmw.grandtourer",           TruckProfile(bed_center_x=-1.70, bed_half_length=0.80, bed_half_width=0.70, bed_height=0.75)),
+    ("Nissan Patrol",        "vehicle.nissan.patrol",             TruckProfile(bed_center_x=-1.50, bed_half_length=0.85, bed_half_width=0.75, bed_height=0.85)),
+    ("Mercedes Coupe",       "vehicle.mercedes.coupe",            TruckProfile(bed_center_x=-1.50, bed_half_length=0.75, bed_half_width=0.70, bed_height=0.72)),
+]
+
+KNOWN_DRONES = [
+    ("SimpleFlight", "SimpleFlight", "SimpleFlight"),
+]
+
+
+def _pick_list(title: str, items: list[tuple[str, str, object]], default_idx: int = 0) -> object:
+    """Generic interactive picker. Returns the third element of the chosen item."""
+    print(title)
+    for i, (label, _id, _payload) in enumerate(items, 1):
+        print(f"  {i}. {label} ({_id})")
+    while True:
+        try:
+            choice = input(f"选择 [1-{len(items)}, 默认={default_idx+1}]: ").strip()
+            if choice == "":
+                return items[default_idx][2]
+            idx = int(choice) - 1
+            if 0 <= idx < len(items):
+                return items[idx][2]
+        except (ValueError, EOFError, KeyboardInterrupt):
+            pass
+        print(f"请输入 1-{len(items)}")
+
+
+def _choose_map() -> str:
+    """Scan the CarlaUE4 Maps directory and prompt the user to select a map."""
+    maps_dir = Path(__file__).resolve().parent.parent / "CarlaUE4" / "Content" / "Carla" / "Maps"
+    if not maps_dir.is_dir():
+        return "Town10HD"
+    maps = sorted(
+        {p.stem for p in maps_dir.glob("Town*.umap") if "_Opt" not in p.stem and "BuiltData" not in p.stem}
+    )
+    if not maps:
+        return "Town10HD"
+    items = [(name, name, name) for name in maps]
+    return _pick_list("可用地图:", items, default_idx=maps.index("Town10HD") if "Town10HD" in maps else 0)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate SPF in CARLA-Air")
     parser.add_argument("task", choices=("landing", "escort"))
@@ -495,19 +558,48 @@ def main() -> None:
     parser.add_argument("--carla-port", type=int, default=2000)
     parser.add_argument("--airsim-port", type=int, default=41451)
     parser.add_argument("--map", default="Town10HD")
+    parser.add_argument("--truck", default="vehicle.carlamotors.european_hgv")
+    parser.add_argument("--drone", default="SimpleFlight")
+    parser.add_argument("--spawn-index", type=int, default=-1, help="卡车出生点索引 (0-4, 距离无人机最近的5个点)")
     parser.add_argument("--carla-start-timeout", type=float, default=90.0)
     parser.add_argument("--carla-warmup-seconds", type=float, default=15.0)
     parser.add_argument("--carla-cooldown-seconds", type=float, default=10.0)
     parser.add_argument("--restart-carla-per-episode", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--allow-unpaired-landing", action="store_true")
     parser.add_argument("--debug", action="store_true", help="Save annotated camera frames for each VLM decision")
+    parser.add_argument("--go-straight", action="store_true", help="卡车优先直行 (路口不随机转弯)")
     args = parser.parse_args()
     if args.task == "escort" and args.mode == "C2":
         parser.error("C2 is defined only for moving-platform landing")
     if args.episodes_per_seed < 1:
         parser.error("--episodes-per-seed must be positive")
     args.seconds = args.seconds or (60.0 if args.task == "landing" else 90.0)
-    print(json.dumps(run(args), indent=2))
+
+    # Map uses default unless explicitly given (no interactive prompt)
+    truck_profile: TruckProfile | None = None
+    for label, bid, profile in KNOWN_TRUCKS:
+        if args.truck.lower() in bid.lower() or args.truck.lower() in label.lower():
+            truck_profile = profile
+            break
+    if truck_profile is None:
+        truck_profile = TruckProfile(blueprint_id=args.truck)
+    if not args.drone:
+        print(f"无人机: SimpleFlight (CarlaAir 内置唯一型号)")
+        args.drone = "SimpleFlight"
+
+    if args.spawn_index < 0:
+        while True:
+            try:
+                val = input("卡车出生点索引 (0, 1, 2, ... 或回车=0): ").strip()
+                args.spawn_index = int(val) if val else 0
+                break
+            except (ValueError, EOFError):
+                print("请输入整数")
+        if args.spawn_index < 0:
+            args.spawn_index = 0
+
+    print(f"地图={args.map}  车辆={truck_profile.blueprint_id}  无人机={args.drone}  出生点=#{args.spawn_index}")
+    print(json.dumps(run(args, truck_profile), indent=2))
 
 
 if __name__ == "__main__":

@@ -25,6 +25,14 @@ class TruckProfile:
 
 
 @dataclass(frozen=True)
+class GroundRobotProfile:
+    blueprint_id: str = "vehicle.mini.cooper_s"
+    max_speed_mps: float = 5.0
+    follow_offset_m: float = 10.0
+    pursuit_radius_m: float = 4.0
+
+
+@dataclass(frozen=True)
 class VehicleState:
     ned: np.ndarray
     yaw_rad: float
@@ -34,7 +42,7 @@ class VehicleState:
 class CarlaAirEnvironment:
     """Owns the evaluation truck and clears pre-existing traffic before each episode."""
 
-    def __init__(self, carla_port: int = 2000, airsim_port: int = 41451, profile: TruckProfile | None = None):
+    def __init__(self, carla_port: int = 2000, airsim_port: int = 41451, profile: TruckProfile | None = None, go_straight: bool = False, robot_profile: GroundRobotProfile | None = None):
         self.client = carla.Client("127.0.0.1", carla_port)
         self.client.set_timeout(20.0)
         self.world = self.client.get_world()
@@ -50,11 +58,14 @@ class CarlaAirEnvironment:
         self.camera_air.confirmConnection()
         self.profile = profile or TruckProfile()
         self.truck: carla.Vehicle | None = None
+        self.robot_dog: carla.Vehicle | None = None
+        self.robot_profile = robot_profile or GroundRobotProfile()
         self._airsim_offset: np.ndarray | None = None
         self._previous_settings: carla.WorldSettings | None = None
         self._last_target_speed = 4.0
         self._fixed_delta_seconds = 0.05
         self._next_tick_wall: float | None = None
+        self.go_straight = go_straight
 
     def reset(self, seed: int, spawn_index: int = 0) -> None:
         self.close_episode()
@@ -64,21 +75,25 @@ class CarlaAirEnvironment:
         time.sleep(0.5)
         blueprint = self.world.get_blueprint_library().find(self.profile.blueprint_id)
         drone_location = self._drone_actor_location()
-        points = sorted(
-            self.world.get_map().get_spawn_points(),
-            key=lambda point: point.location.distance(drone_location),
-        )
-        # Keep all evaluation starts near the native AirSim drone origin; otherwise
-        # the policy's first observation is unrelated to the truck for many seconds.
-        candidate_count = min(5, len(points))
-        preferred = [points[(spawn_index + offset) % candidate_count] for offset in range(candidate_count)]
-        for transform in preferred + points[candidate_count:]:
-            actor = self.world.try_spawn_actor(blueprint, transform)
+        all_points = self.world.get_map().get_spawn_points()
+        total = len(all_points)
+
+        # Try spawn_index first, then wrap around to nearby points
+        spawn_index = spawn_index % total
+        order = [(spawn_index + offset) % total for offset in range(total)]
+
+        self.truck = None
+        for idx in order:
+            actor = self.world.try_spawn_actor(blueprint, all_points[idx])
             if actor is not None:
                 self.truck = actor
+                spawn_index = idx
                 break
         if self.truck is None:
             raise RuntimeError("no free spawn point for the experiment truck")
+        spawn_loc = self.truck.get_location()
+        dist = spawn_loc.distance(drone_location)
+        print(f"[env] 卡车: {self.profile.blueprint_id}  出生点 #{spawn_index}/{total}  距无人机={dist:.1f}m  位置=({spawn_loc.x:.1f}, {spawn_loc.y:.1f}, {spawn_loc.z:.1f})")
         self.air.enableApiControl(True)
         self.air.armDisarm(True)
         if self.air.getMultirotorState().landed_state == airsim.LandedState.Landed:
@@ -106,10 +121,14 @@ class CarlaAirEnvironment:
         settings.fixed_delta_seconds = self._fixed_delta_seconds
         self.world.apply_settings(settings)
         self.world.tick()
-        self.truck.apply_control(carla.VehicleControl(brake=1.0))
-        self.truck.set_autopilot(True, 8000)
-        self.traffic_manager.ignore_lights_percentage(self.truck, 100.0)
-        self.set_truck_speed(4.0)
+        if self.go_straight:
+            self.truck.set_autopilot(False)
+            self.truck.apply_control(carla.VehicleControl(throttle=0.5, steer=0.0))
+        else:
+            self.truck.apply_control(carla.VehicleControl(brake=1.0))
+            self.truck.set_autopilot(True, 8000)
+            self.traffic_manager.ignore_lights_percentage(self.truck, 100.0)
+            self.set_truck_speed(4.0)
         self.world.tick()
         self._next_tick_wall = time.monotonic()
 
@@ -144,7 +163,49 @@ class CarlaAirEnvironment:
             pass
 
     def tick(self) -> float:
-        return self._tick_world()
+        now = self._tick_world()
+        if self.go_straight and self.truck is not None:
+            self._drive_straight()
+        return now
+
+    def _drive_straight(self) -> None:
+        """Lane-keeping with straight preference: follow current lane, go straight at junctions."""
+        truck_loc = self.truck.get_location()
+        truck_yaw = math.radians(self.truck.get_transform().rotation.yaw)
+        wp = self.world.get_map().get_waypoint(truck_loc, project_to_road=True, lane_type=carla.LaneType.Driving)
+        if wp is None:
+            return
+
+        # Get next waypoints 5m ahead
+        next_wps = wp.next(5.0)
+        if not next_wps:
+            return
+
+        # Prefer same road & lane (straight), else same road, else first
+        target = next_wps[0]
+        for nw in next_wps:
+            if nw.road_id == wp.road_id and nw.lane_id == wp.lane_id:
+                target = nw
+                break
+        for nw in next_wps:
+            if nw.road_id == wp.road_id:
+                target = nw
+                break
+
+        # Steer toward target waypoint
+        target_loc = target.transform.location
+        dx = target_loc.x - truck_loc.x
+        dy = target_loc.y - truck_loc.y
+        target_angle = math.atan2(dy, dx)
+        yaw_error = target_angle - truck_yaw
+        # Normalize to [-pi, pi]
+        yaw_error = (yaw_error + math.pi) % (2 * math.pi) - math.pi
+        steer = max(-1.0, min(1.0, yaw_error * 2.0))
+
+        self.truck.apply_control(carla.VehicleControl(
+            throttle=0.5,
+            steer=steer,
+        ))
 
     def _tick_world(self) -> float:
         """Advance the fixed-step world at its configured real-time cadence."""

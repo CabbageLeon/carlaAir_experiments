@@ -1,0 +1,12 @@
+httpx
+numpy
+opencv-python
+openai
+Pillow
+pygame
+torch
+torchvision
+transformers
+accelerate
+packaging
+pyyaml
